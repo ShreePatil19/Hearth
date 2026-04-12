@@ -12,7 +12,7 @@ COVEO_URL = "https://departmentofindustryscienceenergyandresourcesproduxlo9oz8e.
 COVEO_TOKEN = "xx9eeaa647-9038-418e-b985-9a469f276965"
 COVEO_CQ = '(NOT @z95xtemplate==(ADB6CA4F03EF4F47B9AC9CE2BA53FF97,FE5DD82648C6436DB87A7C4210C7413B)) ((@z95xtemplate==64642b7d33654d6aabfaa209fe642da9) (@ez120xcludez32xfromz32xsearch==0) OR @z95xtemplate==03c2e6e6631e4ba9b889e4455d7eb090)'
 
-MAX_RESULTS = 50
+MAX_RESULTS = 200
 
 
 def _epoch_to_iso(epoch_ms: int | None) -> str | None:
