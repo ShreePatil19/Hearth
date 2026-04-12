@@ -7,12 +7,16 @@ import amber_grant
 import cartier
 import scale_investors
 import business_gov_au
+import ifundwomen
+import tory_burch
 
 SCRAPERS = [
     ("Amber Grant", amber_grant),
     ("Cartier Women's Initiative", cartier),
     ("Scale Investors", scale_investors),
     ("business.gov.au", business_gov_au),
+    ("IFundWomen", ifundwomen),
+    ("Tory Burch Foundation", tory_burch),
 ]
 
 
