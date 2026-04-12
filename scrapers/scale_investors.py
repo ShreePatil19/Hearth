@@ -8,53 +8,52 @@ from shared.db import upsert_opportunity
 BASE_URL = "https://www.scaleinvestors.com.au"
 HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/ShreePatil19/Hearth)"}
 
+DEFAULTS = {
+    "type": "fund",
+    "description": "Australia's leading angel investor network focused exclusively on women-led startups. Provides funding, mentorship, and access to investor networks.",
+    "eligibility_summary": "Australian women-led startups seeking angel investment. Must have a scalable business model and be investment-ready.",
+    "stage": ["pre_seed", "seed"],
+    "industry": ["tech", "health", "fintech", "any"],
+    "geo": ["AU"],
+    "currency": "AUD",
+    "women_focused": True,
+}
+
 
 def scrape() -> list[dict]:
     """Fetch and parse Scale Investors pages."""
     session = requests.Session()
     session.headers.update(HEADERS)
-    opportunities: list[dict] = []
 
     pages = [
-        (f"{BASE_URL}/", "Scale Investors Angel Network"),
-        (f"{BASE_URL}/for-entrepreneurs/", "Scale Investors — For Entrepreneurs"),
+        f"{BASE_URL}/",
+        f"{BASE_URL}/for-entrepreneurs/",
     ]
 
-    for url, name in pages:
+    all_text: list[str] = []
+    for url in pages:
         try:
             resp = session.get(url, timeout=15)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, "html.parser")
-
             content = soup.find("main") or soup.find("article") or soup.body
             raw_text = content.get_text(separator="\n", strip=True) if content else ""
-
             if raw_text:
-                opportunities.append({
-                    "name": name,
-                    "organisation": "Scale Investors",
-                    "source_url": url,
-                    "application_url": url,
-                    "raw_text": raw_text,
-                })
-
+                all_text.append(raw_text)
             time.sleep(3)
         except Exception as e:
             print(f"  [error] Failed to scrape {url}: {e}")
 
-    # Keep only the richest entry if both pages scraped the same program
-    if len(opportunities) > 1:
-        # Merge text from both pages into a single opportunity
-        combined_text = "\n\n".join(o["raw_text"] for o in opportunities)
-        return [{
-            "name": "Scale Investors Angel Network",
-            "organisation": "Scale Investors",
-            "source_url": f"{BASE_URL}/",
-            "application_url": f"{BASE_URL}/for-entrepreneurs/",
-            "raw_text": combined_text,
-        }]
+    if not all_text:
+        return []
 
-    return opportunities
+    return [{
+        "name": "Scale Investors Angel Network",
+        "organisation": "Scale Investors",
+        "source_url": f"{BASE_URL}/",
+        "application_url": f"{BASE_URL}/for-entrepreneurs/",
+        "raw_text": "\n\n".join(all_text),
+    }]
 
 
 def run() -> int:
@@ -69,6 +68,7 @@ def run() -> int:
             source_url=opp["source_url"],
             application_url=opp["application_url"],
             raw_text=opp["raw_text"],
+            defaults=DEFAULTS,
         )
         if result is not None:
             count += 1
