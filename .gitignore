@@ -39,3 +39,5 @@ next-env.d.ts
 scrapers/venv/
 __pycache__/
 *.pyc
+
+.vercel
