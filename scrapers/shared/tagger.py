@@ -1,116 +1,142 @@
+"""Rule-based tagger — no LLM needed. Extracts structured metadata using
+regex patterns and source-specific defaults."""
 from __future__ import annotations
-import anthropic
-from .config import ANTHROPIC_API_KEY
+import re
+from datetime import datetime
 from .models import TaggedFields
 
-_client: anthropic.Anthropic | None = None
+# Common date patterns
+DATE_PATTERNS = [
+    # "January 15, 2026" or "Jan 15, 2026"
+    r"(\b(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[.,]?\s+\d{1,2}[,.]?\s+\d{4})",
+    # "15 January 2026" or "15 Jan 2026"
+    r"(\b\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[.,]?\s+\d{4})",
+    # "2026-01-15"
+    r"(\b\d{4}-\d{2}-\d{2}\b)",
+    # "15/01/2026" or "01/15/2026"
+    r"(\b\d{1,2}/\d{1,2}/\d{4}\b)",
+]
 
-SYSTEM_PROMPT = """You are a metadata extraction assistant for Hearth, a funding directory for women founders.
+# Money patterns
+MONEY_PATTERNS = [
+    # "$10,000" or "$10000" or "AUD 10,000"
+    r"(?:(?:AUD|USD|EUR|GBP|NZD)\s*)?\$\s*([\d,]+(?:\.\d{2})?)",
+    r"(?:AUD|USD|EUR|GBP|NZD)\s*([\d,]+(?:\.\d{2})?)",
+]
 
-Given raw text about a funding opportunity, extract structured metadata.
-
-RULES:
-- Write the description and eligibility_summary in your OWN words. Do NOT copy text from the source.
-- description: A concise 1-3 sentence summary of what the opportunity offers.
-- eligibility_summary: Who can apply and key requirements.
-- stage: Which startup stages are eligible. Use "any" only if truly open to all stages.
-- industry: Which industries are targeted. Use "any" only if truly open to all.
-- geo: Which regions can apply. Use "AU" for Australia-specific, "Global" if open worldwide.
-- amount_min/amount_max: In the local currency. Null if not specified.
-- currency: Three-letter code (AUD, USD, EUR, etc.)
-- deadline: ISO date (YYYY-MM-DD) if a specific deadline exists. Null for rolling/ongoing.
-- women_focused: true if the opportunity specifically targets or prioritises women founders.
-"""
-
-TOOL_SCHEMA = {
-    "name": "tag_opportunity",
-    "description": "Extract structured metadata from a funding opportunity description",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "type": {
-                "type": "string",
-                "enum": ["grant", "accelerator", "pitch_competition", "fund", "fellowship", "other"],
-            },
-            "description": {"type": "string", "maxLength": 500},
-            "eligibility_summary": {"type": ["string", "null"], "maxLength": 500},
-            "stage": {
-                "type": "array",
-                "items": {
-                    "type": "string",
-                    "enum": ["idea", "pre_seed", "seed", "series_a", "growth", "any"],
-                },
-                "minItems": 1,
-            },
-            "industry": {
-                "type": "array",
-                "items": {
-                    "type": "string",
-                    "enum": ["tech", "health", "climate", "fintech", "edtech", "agritech", "consumer", "deep_tech", "social", "any"],
-                },
-                "minItems": 1,
-            },
-            "geo": {
-                "type": "array",
-                "items": {
-                    "type": "string",
-                    "enum": ["AU", "US", "UK", "EU", "Global", "APAC"],
-                },
-                "minItems": 1,
-            },
-            "amount_min": {"type": ["integer", "null"]},
-            "amount_max": {"type": ["integer", "null"]},
-            "currency": {"type": "string", "default": "AUD"},
-            "deadline": {"type": ["string", "null"], "description": "ISO date YYYY-MM-DD or null"},
-            "women_focused": {"type": "boolean", "default": True},
-        },
-        "required": ["type", "description", "stage", "industry", "geo"],
-    },
+MONTH_MAP = {
+    "jan": 1, "january": 1, "feb": 2, "february": 2, "mar": 3, "march": 3,
+    "apr": 4, "april": 4, "may": 5, "jun": 6, "june": 6,
+    "jul": 7, "july": 7, "aug": 8, "august": 8, "sep": 9, "september": 9,
+    "oct": 10, "october": 10, "nov": 11, "november": 11, "dec": 12, "december": 12,
 }
 
 
-def _get_client() -> anthropic.Anthropic:
-    global _client
-    if _client is None:
-        _client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    return _client
+def _parse_date(text: str) -> str | None:
+    """Try to extract the earliest future deadline from text."""
+    now = datetime.now()
+    dates: list[datetime] = []
+
+    for pattern in DATE_PATTERNS:
+        for match in re.finditer(pattern, text, re.IGNORECASE):
+            date_str = match.group(1).replace(",", "").replace(".", "").strip()
+            for fmt in [
+                "%B %d %Y", "%b %d %Y", "%d %B %Y", "%d %b %Y",
+                "%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y",
+            ]:
+                try:
+                    dt = datetime.strptime(date_str, fmt)
+                    if dt > now:
+                        dates.append(dt)
+                    break
+                except ValueError:
+                    continue
+
+    if dates:
+        return min(dates).strftime("%Y-%m-%d")
+    return None
 
 
-def tag_opportunity(raw_text: str, name: str, _retry: bool = False) -> TaggedFields | None:
-    """Call Claude Haiku to extract structured metadata. Returns validated TaggedFields or None."""
-    client = _get_client()
+def _parse_amounts(text: str) -> tuple[int | None, int | None, str]:
+    """Extract dollar amounts and currency from text."""
+    amounts: list[int] = []
+    currency = "USD"  # default
 
-    # Truncate to keep costs minimal
-    truncated = raw_text[:3000]
+    # Detect currency
+    if re.search(r"\bAUD\b", text):
+        currency = "AUD"
+    elif re.search(r"\bGBP\b|£", text):
+        currency = "GBP"
+    elif re.search(r"\bEUR\b|€", text):
+        currency = "EUR"
+    elif re.search(r"\bNZD\b", text):
+        currency = "NZD"
 
-    user_message = f"Opportunity name: {name}\n\nRaw text:\n{truncated}"
+    for pattern in MONEY_PATTERNS:
+        for match in re.finditer(pattern, text):
+            amount_str = match.group(1).replace(",", "").split(".")[0]
+            try:
+                val = int(amount_str)
+                if val > 0:
+                    amounts.append(val)
+            except ValueError:
+                continue
+
+    # Also catch plain "$X" without currency prefix
+    for match in re.finditer(r"\$\s*([\d,]+)", text):
+        amount_str = match.group(1).replace(",", "")
+        try:
+            val = int(amount_str)
+            if val > 0 and val not in amounts:
+                amounts.append(val)
+        except ValueError:
+            continue
+
+    if not amounts:
+        return None, None, currency
+
+    amounts.sort()
+    if len(amounts) == 1:
+        return amounts[0], amounts[0], currency
+    return amounts[0], amounts[-1], currency
+
+
+def tag_opportunity(raw_text: str, name: str, defaults: dict | None = None) -> TaggedFields | None:
+    """Extract structured metadata using regex + source-specific defaults.
+
+    Args:
+        raw_text: The scraped page text
+        name: Opportunity name
+        defaults: Source-specific overrides (type, geo, stage, industry, description, etc.)
+    """
+    defaults = defaults or {}
+
+    deadline = defaults.get("deadline") or _parse_date(raw_text)
+    amount_min, amount_max, currency = _parse_amounts(raw_text)
+
+    # Allow defaults to override extracted amounts
+    if "amount_min" in defaults:
+        amount_min = defaults["amount_min"]
+    if "amount_max" in defaults:
+        amount_max = defaults["amount_max"]
+    if "currency" in defaults:
+        currency = defaults["currency"]
 
     try:
-        response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=1024,
-            system=SYSTEM_PROMPT,
-            tools=[TOOL_SCHEMA],
-            tool_choice={"type": "tool", "name": "tag_opportunity"},
-            messages=[{"role": "user", "content": user_message}],
+        tagged = TaggedFields(
+            type=defaults.get("type", "grant"),
+            description=defaults.get("description", f"Funding opportunity: {name}"),
+            eligibility_summary=defaults.get("eligibility_summary"),
+            stage=defaults.get("stage", ["any"]),
+            industry=defaults.get("industry", ["any"]),
+            geo=defaults.get("geo", ["Global"]),
+            amount_min=amount_min,
+            amount_max=amount_max,
+            currency=currency,
+            deadline=deadline,
+            women_focused=defaults.get("women_focused", True),
         )
-
-        # Extract tool use block
-        tool_block = next(
-            (b for b in response.content if b.type == "tool_use"),
-            None,
-        )
-        if not tool_block:
-            print(f"  [tagger] No tool_use block for: {name}")
-            return None
-
-        # Validate with Pydantic
-        tagged = TaggedFields.model_validate(tool_block.input)
         return tagged
-
     except Exception as e:
-        if not _retry:
-            print(f"  [tagger] Retry for: {name} — {e}")
-            return tag_opportunity(raw_text, name, _retry=True)
-        print(f"  [tagger] Failed after retry for: {name} — {e}")
+        print(f"  [tagger] Validation error for {name}: {e}")
         return None

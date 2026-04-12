@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useCallback } from "react";
-import { Filter, X } from "lucide-react";
+import { Filter, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -31,7 +31,9 @@ function FilterGroup({
 }) {
   return (
     <div>
-      <h3 className="mb-2 text-sm font-semibold">{title}</h3>
+      <h3 className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </h3>
       <div className="space-y-2">
         {options.map((opt) => (
           <div key={opt.value} className="flex items-center space-x-2">
@@ -44,7 +46,7 @@ function FilterGroup({
             />
             <Label
               htmlFor={`${paramKey}-${opt.value}`}
-              className="text-sm font-normal cursor-pointer"
+              className="text-sm font-normal cursor-pointer leading-none"
             >
               {opt.label}
             </Label>
@@ -110,28 +112,29 @@ function FilterControls() {
   const hasFilters = searchParams.toString().length > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Aussie Only toggle */}
-      <div className="flex items-center space-x-2 rounded-md border p-3 bg-amber-50">
-        <Checkbox
-          id="aussie-only"
-          checked={aussieOnly}
-          onCheckedChange={toggleAussie}
-        />
-        <Label htmlFor="aussie-only" className="font-semibold cursor-pointer">
-          Australia Only
-        </Label>
-      </div>
+      <button
+        onClick={toggleAussie}
+        className={`flex w-full items-center gap-2.5 rounded-lg border-2 p-3 text-left transition-colors ${
+          aussieOnly
+            ? "border-orange-400 bg-orange-50 text-orange-700"
+            : "border-border bg-card hover:border-orange-200 hover:bg-orange-50/50"
+        }`}
+      >
+        <MapPin className={`h-4 w-4 ${aussieOnly ? "text-orange-500" : "text-muted-foreground"}`} />
+        <span className="text-sm font-semibold">Australia Only</span>
+      </button>
 
       {hasFilters && (
         <Button
           variant="ghost"
           size="sm"
           onClick={clearAll}
-          className="w-full text-muted-foreground"
+          className="w-full text-muted-foreground hover:text-foreground"
         >
-          <X className="mr-1 h-3 w-3" />
-          Clear All Filters
+          <X className="mr-1.5 h-3 w-3" />
+          Clear All
         </Button>
       )}
 
@@ -182,9 +185,12 @@ export function FilterSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:block w-64 shrink-0">
-        <div className="sticky top-4">
-          <h2 className="mb-4 text-lg font-semibold">Filters</h2>
+      <aside className="hidden md:block w-60 shrink-0">
+        <div className="sticky top-20 rounded-xl border bg-card p-5">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            Filters
+          </h2>
           <FilterControls />
         </div>
       </aside>
@@ -193,7 +199,7 @@ export function FilterSidebar() {
       <div className="md:hidden fixed bottom-4 right-4 z-50">
         <Sheet>
           <SheetTrigger asChild>
-            <Button size="lg" className="rounded-full shadow-lg">
+            <Button size="lg" className="rounded-full shadow-lg bg-orange-500 hover:bg-orange-600">
               <Filter className="mr-2 h-4 w-4" />
               Filters
             </Button>

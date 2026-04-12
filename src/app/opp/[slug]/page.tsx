@@ -48,56 +48,56 @@ export default async function OpportunityPage({ params }: PageProps) {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
 
-      <main className="container mx-auto flex-1 px-4 py-6">
+      <main className="container flex-1 py-6 md:py-8">
         <Link
           href="/"
-          className="mb-4 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-orange-600 transition-colors"
         >
-          <ArrowLeft className="mr-1 h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
           Back to all opportunities
         </Link>
 
-        <Card className="mt-4">
-          <CardHeader>
-            <div className="flex flex-wrap items-start justify-between gap-2">
+        <Card className="mt-2 rounded-xl shadow-sm">
+          <CardHeader className="pb-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <CardTitle className="text-2xl">{opp.name}</CardTitle>
+                <CardTitle className="text-2xl md:text-3xl">{opp.name}</CardTitle>
                 {opp.organisation && (
-                  <p className="mt-1 text-muted-foreground">{opp.organisation}</p>
+                  <p className="mt-1.5 text-muted-foreground">{opp.organisation}</p>
                 )}
               </div>
-              <Badge variant="secondary">{typeLabel}</Badge>
+              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100">{typeLabel}</Badge>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
             {opp.description && (
               <div>
-                <h3 className="mb-1 font-semibold">About</h3>
+                <h3 className="mb-1.5 text-sm font-semibold uppercase tracking-wider text-muted-foreground">About</h3>
                 <p className="text-sm leading-relaxed">{opp.description}</p>
               </div>
             )}
 
             {opp.eligibility_summary && (
-              <div className="rounded-md bg-slate-50 p-4">
-                <h3 className="mb-1 font-semibold">Eligibility</h3>
-                <p className="text-sm leading-relaxed">{opp.eligibility_summary}</p>
+              <div className="rounded-lg bg-orange-50 border border-orange-100 p-4">
+                <h3 className="mb-1.5 text-sm font-semibold uppercase tracking-wider text-orange-700">Eligibility</h3>
+                <p className="text-sm leading-relaxed text-orange-900/80">{opp.eligibility_summary}</p>
               </div>
             )}
 
             <Separator />
 
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-              <div>
-                <h4 className="text-xs font-medium uppercase text-muted-foreground">Amount</h4>
-                <p className="mt-1 font-medium">
+              <div className="rounded-lg border p-3">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Amount</h4>
+                <p className="mt-1.5 text-lg font-semibold">
                   {formatCurrency(opp.amount_min, opp.amount_max, opp.currency)}
                 </p>
               </div>
 
-              <div>
-                <h4 className="text-xs font-medium uppercase text-muted-foreground">Deadline</h4>
-                <p className="mt-1 font-medium">
+              <div className="rounded-lg border p-3">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Deadline</h4>
+                <p className="mt-1.5 text-lg font-semibold">
                   {opp.deadline
                     ? new Date(opp.deadline).toLocaleDateString("en-AU", {
                         day: "numeric",
@@ -108,18 +108,18 @@ export default async function OpportunityPage({ params }: PageProps) {
                 </p>
               </div>
 
-              <div>
-                <h4 className="text-xs font-medium uppercase text-muted-foreground">Currency</h4>
-                <p className="mt-1 font-medium">{opp.currency}</p>
+              <div className="rounded-lg border p-3">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Currency</h4>
+                <p className="mt-1.5 text-lg font-semibold">{opp.currency}</p>
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <h4 className="text-xs font-medium uppercase text-muted-foreground">Stage</h4>
-                <div className="mt-1 flex flex-wrap gap-1">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Stage</h4>
+                <div className="flex flex-wrap gap-1.5">
                   {opp.stage?.map((s: string) => (
-                    <Badge key={s} variant="outline" className="text-xs">
+                    <Badge key={s} variant="outline" className="text-xs capitalize">
                       {s.replace(/_/g, " ")}
                     </Badge>
                   ))}
@@ -127,10 +127,10 @@ export default async function OpportunityPage({ params }: PageProps) {
               </div>
 
               <div>
-                <h4 className="text-xs font-medium uppercase text-muted-foreground">Industry</h4>
-                <div className="mt-1 flex flex-wrap gap-1">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Industry</h4>
+                <div className="flex flex-wrap gap-1.5">
                   {opp.industry?.map((i: string) => (
-                    <Badge key={i} variant="outline" className="text-xs">
+                    <Badge key={i} variant="outline" className="text-xs capitalize">
                       {i.replace(/_/g, " ")}
                     </Badge>
                   ))}
@@ -138,8 +138,8 @@ export default async function OpportunityPage({ params }: PageProps) {
               </div>
 
               <div>
-                <h4 className="text-xs font-medium uppercase text-muted-foreground">Region</h4>
-                <div className="mt-1 flex flex-wrap gap-1">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Region</h4>
+                <div className="flex flex-wrap gap-1.5">
                   {opp.geo?.map((g: string) => (
                     <Badge key={g} variant="outline" className="text-xs">
                       {g}
@@ -152,14 +152,14 @@ export default async function OpportunityPage({ params }: PageProps) {
             <Separator />
 
             <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600">
                 <a href={applyUrl} target="_blank" rel="noopener noreferrer">
                   Apply on Source Site
                   <ExternalLink className="ml-2 h-4 w-4" />
                 </a>
               </Button>
 
-              <Button variant="outline" asChild>
+              <Button variant="outline" asChild size="lg">
                 <a href={opp.source_url} target="_blank" rel="noopener noreferrer">
                   View Original Listing
                   <ExternalLink className="ml-2 h-4 w-4" />
@@ -167,7 +167,7 @@ export default async function OpportunityPage({ params }: PageProps) {
               </Button>
             </div>
 
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground/60">
               Hearth is for discovery purposes only. Always verify eligibility and
               details on the original source site.
             </p>

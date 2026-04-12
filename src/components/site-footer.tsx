@@ -1,12 +1,22 @@
+import { Flame } from "lucide-react";
+
 export function SiteFooter() {
   return (
-    <footer className="border-t bg-slate-50 py-6">
-      <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-        <p>
-          Hearth is a discovery tool, not legal or financial advice. Always
-          verify eligibility and details on the original source site.
-        </p>
-        <p className="mt-2">Data refreshed daily.</p>
+    <footer className="border-t bg-white">
+      <div className="container py-8">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Flame className="h-4 w-4 text-orange-400" />
+            <span className="text-sm font-medium">Hearth</span>
+          </div>
+          <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
+            Hearth is a discovery tool, not legal or financial advice. Always
+            verify eligibility and details on the original source site.
+          </p>
+          <p className="text-xs text-muted-foreground/60">
+            Data refreshed daily &middot; Built for women founders
+          </p>
+        </div>
       </div>
     </footer>
   );

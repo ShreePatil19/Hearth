@@ -1,7 +1,8 @@
 from __future__ import annotations
 import hashlib
+import json
 from datetime import datetime, timezone
-from .config import get_supabase_client
+from .config import get_client
 from .slug import generate_slug
 from .tagger import tag_opportunity
 
@@ -16,29 +17,33 @@ def upsert_opportunity(
     source_url: str,
     application_url: str | None,
     raw_text: str,
+    defaults: dict | None = None,
 ) -> dict | None:
     """Tag and upsert a single opportunity. Returns the row dict or None on failure."""
-    client = get_supabase_client()
+    client = get_client()
     slug = generate_slug(name, organisation)
     content_hash = compute_hash(raw_text)
     now = datetime.now(timezone.utc).isoformat()
 
     # Check if content has changed
-    existing = (
-        client.table("opportunities")
-        .select("content_hash")
-        .eq("slug", slug)
-        .execute()
+    resp = client.get(
+        "/opportunities",
+        params={"slug": f"eq.{slug}", "select": "content_hash"},
     )
+    existing = resp.json() if resp.status_code == 200 else []
 
-    if existing.data and existing.data[0].get("content_hash") == content_hash:
-        # Content unchanged — just update last_checked_at
-        client.table("opportunities").update({"last_checked_at": now}).eq("slug", slug).execute()
+    if existing and existing[0].get("content_hash") == content_hash:
+        # Unchanged — just update last_checked_at
+        client.patch(
+            "/opportunities",
+            params={"slug": f"eq.{slug}"},
+            content=json.dumps({"last_checked_at": now}),
+        )
         print(f"  [skip] {name} — unchanged")
-        return existing.data[0]
+        return existing[0]
 
-    # Content changed or new — tag with Claude Haiku
-    tagged = tag_opportunity(raw_text, name)
+    # Tag with rule-based tagger
+    tagged = tag_opportunity(raw_text, name, defaults=defaults)
     if tagged is None:
         print(f"  [fail] {name} — tagging failed")
         return None
@@ -55,16 +60,22 @@ def upsert_opportunity(
         **tagged.model_dump(),
     }
 
-    # Convert deadline to ISO string if present
     if row.get("deadline"):
         row["deadline"] = str(row["deadline"])
 
-    result = (
-        client.table("opportunities")
-        .upsert(row, on_conflict="slug")
-        .execute()
+    # Upsert via POST with on_conflict
+    resp = client.post(
+        "/opportunities",
+        content=json.dumps(row),
+        headers={"Prefer": "return=representation,resolution=merge-duplicates"},
+        params={"on_conflict": "slug"},
     )
 
-    action = "update" if existing.data else "new"
-    print(f"  [{action}] {name}")
-    return result.data[0] if result.data else None
+    if resp.status_code in (200, 201):
+        action = "update" if existing else "new"
+        print(f"  [{action}] {name}")
+        data = resp.json()
+        return data[0] if data else row
+    else:
+        print(f"  [error] {name} — {resp.status_code}: {resp.text}")
+        return None
