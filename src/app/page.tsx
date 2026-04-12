@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Search, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { parseFilters } from "@/lib/filters";
 import { SiteHeader } from "@/components/site-header";
@@ -15,45 +16,70 @@ export default async function Home({
   const params = await searchParams;
   const filters = parseFilters(params);
 
-  const supabase = await createClient();
-  let query = supabase
-    .from("opportunities")
-    .select("*")
-    .eq("is_active", true)
-    .order("deadline", { ascending: true, nullsFirst: false });
+  let opps: Opportunity[] = [];
 
-  // Apply filters
-  if (filters.type.length) {
-    query = query.in("type", filters.type);
-  }
-  if (filters.stage.length) {
-    query = query.overlaps("stage", filters.stage);
-  }
-  if (filters.industry.length) {
-    query = query.overlaps("industry", filters.industry);
-  }
-  if (filters.geo.length) {
-    query = query.overlaps("geo", filters.geo);
-  }
-  if (filters.aussieOnly) {
-    query = query.contains("geo", ["AU"]);
-  }
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    const supabase = await createClient();
+    let query = supabase
+      .from("opportunities")
+      .select("*")
+      .eq("is_active", true)
+      .order("deadline", { ascending: true, nullsFirst: false });
 
-  const { data: opportunities } = await query;
-  const opps = (opportunities ?? []) as Opportunity[];
+    if (filters.type.length) {
+      query = query.in("type", filters.type);
+    }
+    if (filters.stage.length) {
+      query = query.overlaps("stage", filters.stage);
+    }
+    if (filters.industry.length) {
+      query = query.overlaps("industry", filters.industry);
+    }
+    if (filters.geo.length) {
+      query = query.overlaps("geo", filters.geo);
+    }
+    if (filters.aussieOnly) {
+      query = query.contains("geo", ["AU"]);
+    }
+
+    const { data: opportunities } = await query;
+    opps = (opportunities ?? []) as Opportunity[];
+  }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
 
-      <main className="container mx-auto flex-1 px-4 py-6">
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            {opps.length} {opps.length === 1 ? "opportunity" : "opportunities"} found
+      {/* Hero */}
+      <section className="border-b bg-gradient-to-b from-orange-50 to-background">
+        <div className="container py-10 md:py-14">
+          <div className="flex items-center gap-2 text-sm font-medium text-orange-600 mb-3">
+            <Sparkles className="h-4 w-4" />
+            <span>Funding opportunities for women founders</span>
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
+            Find your next
+            <span className="text-orange-500"> funding opportunity</span>
+          </h1>
+          <p className="mt-3 max-w-2xl text-base text-muted-foreground md:text-lg">
+            Grants, accelerators, pitch competitions, and funds — all in one place.
+            Filtered, searchable, and refreshed daily.
           </p>
         </div>
+      </section>
 
-        <div className="flex gap-6">
+      {/* Main content */}
+      <main className="container flex-1 py-6 md:py-8">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <p className="text-sm font-medium text-muted-foreground">
+              {opps.length} {opps.length === 1 ? "opportunity" : "opportunities"} found
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-8">
           <Suspense fallback={null}>
             <FilterSidebar />
           </Suspense>
