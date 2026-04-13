@@ -1,9 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Flame } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export function SiteHeader() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+  }, []);
+
   return (
     <header className="sticky top-0 z-40 border-b bg-white/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between">
@@ -22,18 +33,17 @@ export function SiteHeader() {
         </Link>
 
         <nav className="flex items-center gap-4">
-          <Link
-            href="/privacy"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Privacy
-          </Link>
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
-          >
-            Dashboard
-          </Link>
+          <span className="hidden sm:inline-block text-xs text-muted-foreground">
+            For women founders
+          </span>
+          {isLoggedIn && (
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
+            >
+              Dashboard
+            </Link>
+          )}
         </nav>
       </div>
     </header>
