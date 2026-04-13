@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Flame } from "lucide-react";
 
 export function SiteFooter() {
@@ -13,9 +14,15 @@ export function SiteFooter() {
             Hearth is a discovery tool, not legal or financial advice. Always
             verify eligibility and details on the original source site.
           </p>
-          <p className="text-xs text-muted-foreground/60">
-            Data refreshed daily &middot; Built for women founders
-          </p>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground/60">
+            <span>Data refreshed daily</span>
+            <span>&middot;</span>
+            <Link href="/privacy" className="hover:text-orange-600 transition-colors">
+              Privacy
+            </Link>
+            <span>&middot;</span>
+            <span>Built for women founders</span>
+          </div>
         </div>
       </div>
     </footer>
