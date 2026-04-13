@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { SLACK_SCOPES } from "@/lib/slack";
+import { rateLimit } from "@/lib/rate-limit";
 import crypto from "crypto";
 
 export async function GET(request: NextRequest) {
+  // Rate limit: 5 OAuth attempts per minute per IP
+  const ip = request.headers.get("x-forwarded-for") || "unknown";
+  const { success } = rateLimit(ip, { limit: 5, windowMs: 60_000 });
+  if (!success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   // Verify user is authenticated
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

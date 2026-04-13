@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hmacUserId, slackTsToDate } from "@/lib/slack";
+import { sendFailureNotification } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -156,12 +157,21 @@ export async function GET() {
         .eq("id", logEntry?.id);
 
       results.push({ community: community.id, status: "error", messages: 0, error: errorMsg });
+
+      // Notify on failure
+      await sendFailureNotification(
+        `Slack ingest failed for community ${community.id}`,
+        errorMsg
+      ).catch(() => {}); // Don't let notification failure crash the cron
     }
   }
+
+  const hasFailures = results.some((r) => r.status === "error");
 
   return NextResponse.json({
     timestamp: new Date().toISOString(),
     communities_processed: communities.length,
     results,
+    status: hasFailures ? "partial_failure" : "success",
   });
 }

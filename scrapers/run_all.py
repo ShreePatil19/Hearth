@@ -11,6 +11,8 @@ import ifundwomen
 import tory_burch
 import heads_over_heels
 import sbe_australia
+import techstars
+import sheeo_coralus
 
 SCRAPERS = [
     ("Amber Grant", amber_grant),
@@ -21,6 +23,8 @@ SCRAPERS = [
     ("Tory Burch Foundation", tory_burch),
     ("Heads Over Heels", heads_over_heels),
     ("SBE Australia", sbe_australia),
+    ("Techstars", techstars),
+    ("Coralus/SheEO", sheeo_coralus),
 ]
 
 
