@@ -79,7 +79,7 @@ export default async function Home({
           </div>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex gap-0 md:gap-8">
           <Suspense fallback={null}>
             <FilterSidebar />
           </Suspense>

@@ -9,7 +9,7 @@ interface MetricCardProps {
 export function MetricCard({ title, value, subtitle }: MetricCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-3">
         <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {title}
         </CardTitle>

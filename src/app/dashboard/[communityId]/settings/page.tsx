@@ -90,6 +90,7 @@ export default async function SettingsPage({ params }: PageProps) {
                   readOnly
                   value={shareUrl}
                   className="flex-1 rounded-md border px-3 py-2 text-sm bg-muted"
+                  aria-label="Shareable dashboard URL"
                 />
               </div>
               <div className="flex gap-2">

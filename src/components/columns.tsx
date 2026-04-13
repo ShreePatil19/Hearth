@@ -74,7 +74,6 @@ export const columns: ColumnDef<Opportunity>[] = [
         {formatCurrency(row.original.amount_min, row.original.amount_max, row.original.currency)}
       </span>
     ),
-    meta: { hideOnMobile: true },
   },
   {
     accessorKey: "deadline",

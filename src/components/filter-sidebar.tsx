@@ -199,12 +199,12 @@ export function FilterSidebar() {
       <div className="md:hidden fixed bottom-4 right-4 z-50">
         <Sheet>
           <SheetTrigger asChild>
-            <Button size="lg" className="rounded-full shadow-lg bg-orange-500 hover:bg-orange-600">
+            <Button size="lg" className="rounded-full shadow-lg bg-orange-500 hover:bg-orange-600" aria-label="Open filters">
               <Filter className="mr-2 h-4 w-4" />
               Filters
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-80 overflow-y-auto">
+          <SheetContent side="left" className="w-[85vw] max-w-xs overflow-y-auto">
             <SheetHeader>
               <SheetTitle>Filters</SheetTitle>
             </SheetHeader>
