@@ -21,6 +21,10 @@ export function SiteFooter() {
               Privacy
             </Link>
             <span>&middot;</span>
+            <Link href="/community" className="hover:text-orange-600 transition-colors">
+              For Community Managers
+            </Link>
+            <span>&middot;</span>
             <span>Built for women founders</span>
           </div>
         </div>

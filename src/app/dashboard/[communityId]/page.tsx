@@ -9,6 +9,8 @@ import { MessageVolumeChart } from "@/components/dashboard/message-volume-chart"
 import { ChannelBreakdownChart } from "@/components/dashboard/channel-breakdown-chart";
 import { TopContributorsTable } from "@/components/dashboard/top-contributors-table";
 import { NewVsReturningChart } from "@/components/dashboard/new-vs-returning-chart";
+import { CohortRetentionTable } from "@/components/dashboard/cohort-retention-table";
+import { LurkerRatioCard } from "@/components/dashboard/lurker-ratio-card";
 import { TimeRangeSelector } from "@/components/dashboard/time-range-selector";
 import {
   getDashboardMetrics,
@@ -16,6 +18,8 @@ import {
   getChannelBreakdown,
   getTopContributors,
   getNewVsReturning,
+  getCohortRetention,
+  getLurkerRatio,
 } from "@/lib/dashboard-queries";
 
 interface PageProps {
@@ -39,12 +43,14 @@ export default async function CommunityDashboardPage({ params, searchParams }: P
   if (!community) notFound();
 
   // Fetch all metrics in parallel
-  const [metrics, volume, channels, contributors, newVsReturning] = await Promise.all([
+  const [metrics, volume, channels, contributors, newVsReturning, cohortData, lurkerData] = await Promise.all([
     getDashboardMetrics(supabase, communityId, range),
     getMessageVolume(supabase, communityId, range),
     getChannelBreakdown(supabase, communityId, range),
     getTopContributors(supabase, communityId, range),
     getNewVsReturning(supabase, communityId, range),
+    getCohortRetention(supabase, communityId),
+    getLurkerRatio(supabase, communityId, range),
   ]);
 
   return (
@@ -87,10 +93,16 @@ export default async function CommunityDashboardPage({ params, searchParams }: P
         <ChannelBreakdownChart data={channels} />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 mb-6">
         <TopContributorsTable data={contributors} />
-        <NewVsReturningChart data={newVsReturning} />
+        <div className="space-y-6">
+          <NewVsReturningChart data={newVsReturning} />
+          <LurkerRatioCard totalMembers={lurkerData.totalMembers} activePosters={lurkerData.activePosters} />
+        </div>
       </div>
+
+      {/* Cohort Retention */}
+      <CohortRetentionTable data={cohortData} />
     </div>
   );
 }

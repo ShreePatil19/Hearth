@@ -214,3 +214,34 @@ export async function getCohortRetention(
 
   return data || [];
 }
+
+export async function getLurkerRatio(
+  supabase: SupabaseClient,
+  communityId: string,
+  range: Range
+) {
+  const since = getRangeDate(range);
+
+  // Total members across opted-in channels
+  const { data: channels } = await supabase
+    .from("channels")
+    .select("member_count")
+    .eq("community_id", communityId)
+    .eq("opted_in", true);
+
+  const totalMembers = channels?.reduce((sum, ch) => sum + (ch.member_count || 0), 0) || 0;
+
+  // Active posters in range
+  const { data: activeUsers } = await supabase
+    .from("message_events")
+    .select("hashed_user_id")
+    .eq("community_id", communityId)
+    .gte("ts", since);
+
+  const uniquePosters: string[] = [];
+  for (const u of activeUsers || []) {
+    if (!uniquePosters.includes(u.hashed_user_id)) uniquePosters.push(u.hashed_user_id);
+  }
+
+  return { totalMembers, activePosters: uniquePosters.length };
+}
