@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hmacUserId, slackTsToDate } from "@/lib/slack";
 
-export const maxDuration = 60; // Vercel function timeout
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 interface SlackMessage {
   user?: string;
