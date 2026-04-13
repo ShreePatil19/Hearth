@@ -22,9 +22,18 @@ export function SiteHeader() {
         </Link>
 
         <nav className="flex items-center gap-4">
-          <span className="hidden sm:inline-block text-xs text-muted-foreground">
-            For women founders
-          </span>
+          <Link
+            href="/privacy"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Privacy
+          </Link>
+          <Link
+            href="/dashboard"
+            className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
+          >
+            Dashboard
+          </Link>
         </nav>
       </div>
     </header>
