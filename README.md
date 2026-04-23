@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hearth
 
-## Getting Started
+A platform for women founders to find and win funding.
 
-First, run the development server:
+**Live:** [hearth-seven-zeta.vercel.app](https://hearth-seven-zeta.vercel.app)
+
+## What's here
+
+- **Funding Radar** — public, filterable directory of 308+ grants, accelerators, pitch competitions, and funds from 10 sources. Refreshed daily.
+- **Community Dashboard** — privacy-first analytics for Slack communities running women-founder groups. Metadata-only ingest, HMAC-hashed user IDs, per-channel opt-in.
+
+## Tech stack
+
+- Next.js 14 (App Router) + TypeScript + Tailwind + shadcn/ui
+- Supabase (Postgres + Auth + RLS + pgcrypto)
+- Python scrapers (requests + BeautifulSoup + httpx)
+- Vercel hosting + Vercel Cron
+- GitHub Actions for daily scraper refresh
+- Recharts, Sentry, CI with RLS security tests
+
+## Local development
 
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env.local
+# Fill in Supabase URL, anon key, service role key
+
+# Run dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Running scrapers locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cd scrapers
+python -m venv venv
+source venv/Scripts/activate  # or venv/bin/activate on macOS/Linux
+pip install -r requirements.txt
+python run_all.py
+```
 
-## Learn More
+### Running tests
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# RLS security tests (requires .env.local configured)
+npx tsx scripts/test-rls.ts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Seed demo data for the dashboard
+npx tsx scripts/seed-demo-data.ts
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project structure
 
-## Deploy on Vercel
+```
+src/
+  app/                    # Next.js App Router
+    page.tsx              # Funding Radar homepage (public)
+    opp/[slug]/           # Opportunity detail pages
+    dashboard/            # Community manager dashboard (auth)
+    community/            # Landing page for community managers
+    privacy/              # Privacy policy
+    auth/                 # Login, signup, callback
+    api/                  # Slack OAuth, cron endpoints
+  components/             # React components (shadcn/ui + custom)
+  lib/                    # Schemas, queries, utilities
+  middleware.ts           # Auth gate for /dashboard, CRON_SECRET for /api/cron
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+scrapers/                 # Python scrapers (10 sources)
+  shared/                 # Shared utilities (config, db, tagger)
+  run_all.py              # Orchestrator
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+supabase/migrations/      # Database schema
+scripts/                  # Demo seed + RLS tests
+.github/workflows/        # CI + daily scraper cron
+```
+
+## Privacy guarantees (Community Dashboard)
+
+- Message text is never stored
+- User IDs are HMAC-SHA256 hashed with per-community salt
+- Per-channel opt-in (default OFF)
+- OAuth tokens encrypted at rest (pgcrypto)
+- One-tap revoke with cascade delete
+
+## Status
+
+- Phase 1 (Funding Radar): **live**
+- Phase 2 (Community Dashboard): **live**
+- Phase 3 (founder profiles + recommendations + application tracker): **in progress**
