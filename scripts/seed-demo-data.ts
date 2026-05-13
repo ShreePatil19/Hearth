@@ -71,6 +71,28 @@ async function seed() {
     console.log(`Created demo user: ${userId}`);
   }
 
+  // Ensure demo user has an approved user_profile (post-003 schema).
+  // Trigger inserts a pending row on auth.users INSERT — upsert flips it to
+  // approved so demo dashboard works without manual admin approval. Idempotent.
+  const { error: profileErr } = await supabase
+    .from("user_profiles")
+    .upsert(
+      {
+        user_id: userId,
+        status: "approved",
+        is_admin: false,
+        approved_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+  if (profileErr) {
+    console.warn(
+      `Warning: failed to approve demo profile (apply migration 003 first?): ${profileErr.message}`,
+    );
+  } else {
+    console.log("Demo user profile set to approved");
+  }
+
   // Create demo community
   const { data: community, error: commErr } = await supabase
     .from("communities")
