@@ -1,7 +1,19 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Flame, Lock, RefreshCw, Sparkles, Users } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Flame,
+  Lock,
+  RefreshCw,
+  Shield,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { SiteFooter } from "@/components/site-footer";
 import { createClient } from "@/lib/supabase/server";
 
@@ -130,6 +142,75 @@ export default async function LandingPage() {
                 title="Community analytics"
                 description="If you run a women-founder Slack community, plug it in for privacy-first engagement insights."
               />
+            </div>
+          </div>
+        </section>
+
+        {/* For community managers */}
+        <section className="border-t bg-white">
+          <div className="container py-16 md:py-20">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700">
+                <Shield className="h-3.5 w-3.5" />
+                Privacy-first analytics
+              </div>
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight md:text-3xl">
+                Running a women-founder community?
+              </h2>
+              <p className="mt-3 text-base text-muted-foreground">
+                Plug in your Slack for free engagement analytics — without ever
+                touching a message.
+              </p>
+            </div>
+
+            <div className="mx-auto mt-10 grid max-w-4xl gap-6 md:grid-cols-2">
+              <Card className="border-orange-200 bg-orange-50/30">
+                <CardContent className="pt-6">
+                  <div className="mb-4 flex items-center gap-2">
+                    <Eye className="h-5 w-5 text-orange-500" />
+                    <h3 className="text-lg font-semibold">What you see</h3>
+                  </div>
+                  <ul className="space-y-2.5">
+                    {[
+                      "Daily, weekly, monthly active users",
+                      "Message volume trends over time",
+                      "Most active channels",
+                      "Top contributors (anonymous ranks)",
+                      "Cohort retention week over week",
+                      "Shareable dashboard for board reports",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="border-green-200 bg-green-50/30">
+                <CardContent className="pt-6">
+                  <div className="mb-4 flex items-center gap-2">
+                    <EyeOff className="h-5 w-5 text-green-600" />
+                    <h3 className="text-lg font-semibold">What we never touch</h3>
+                  </div>
+                  <ul className="space-y-2.5">
+                    {[
+                      "Message content — never read or stored",
+                      "Direct messages — zero access",
+                      "Real names or emails — IDs are hashed",
+                      "Files and attachments — not accessed",
+                      "Channels you don't opt in — ignored",
+                      "Data sold to third parties — never",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm">
+                        <Lock className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>

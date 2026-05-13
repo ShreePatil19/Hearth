@@ -1,51 +1,50 @@
-"use client";
+import { createClient } from "@/lib/supabase/server";
+import { SiteHeaderNav, type SiteHeaderStatus } from "./site-header-nav";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Flame } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+// Unified top-nav rendered across the member app AND admin console.
+// On /admin/* the layout renders an admin sub-nav strip below this header.
+// /admin/login bypasses this entirely (it has its own pre-auth chrome).
+export async function SiteHeader() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export function SiteHeader() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  let status: SiteHeaderStatus = "anonymous";
+  let isAdmin = false;
+  let pendingCount = 0;
+  let email: string | null = null;
 
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
-    });
-  }, []);
+  if (user) {
+    email = user.email ?? null;
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("is_admin, status")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (profile) {
+      status = (profile.status as SiteHeaderStatus) ?? "pending";
+      isAdmin = !!profile.is_admin;
+    } else {
+      status = "pending";
+    }
+
+    if (isAdmin) {
+      const { count } = await supabase
+        .from("user_profiles")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+      pendingCount = count ?? 0;
+    }
+  }
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-white/80 backdrop-blur-sm">
-      <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 text-white">
-            <Flame className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-bold leading-tight tracking-tight text-foreground">
-              Hearth
-            </span>
-            <span className="text-[11px] font-medium leading-tight text-muted-foreground">
-              Funding Radar
-            </span>
-          </div>
-        </Link>
-
-        <nav className="flex items-center gap-4">
-          <span className="hidden sm:inline-block text-xs text-muted-foreground">
-            For women founders
-          </span>
-          {isLoggedIn && (
-            <Link
-              href="/dashboard"
-              className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
-            >
-              Dashboard
-            </Link>
-          )}
-        </nav>
-      </div>
-    </header>
+    <SiteHeaderNav
+      status={status}
+      isAdmin={isAdmin}
+      email={email}
+      pendingCount={pendingCount}
+    />
   );
 }
