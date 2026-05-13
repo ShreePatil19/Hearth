@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from shared.db import upsert_opportunity
 
 BASE_URL = "https://www.coralus.world"
-HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/ShreePatil19/Hearth)"}
+HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/systems-collab/Hearth)"}
 
 PAGES = [
     {

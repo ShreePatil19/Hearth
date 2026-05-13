@@ -9,7 +9,7 @@ BASE_URL = "https://www.toryburchfoundation.org"
 PAGES = [
     f"{BASE_URL}/programs/fellows",
 ]
-HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/ShreePatil19/Hearth)"}
+HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/systems-collab/Hearth)"}
 
 DEFAULTS = {
     "type": "fellowship",

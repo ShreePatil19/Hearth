@@ -10,7 +10,7 @@ PAGES = [
     f"{BASE_URL}/grants",
     f"{BASE_URL}/universal-grant-application",
 ]
-HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/ShreePatil19/Hearth)"}
+HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/systems-collab/Hearth)"}
 
 DEFAULTS = {
     "type": "grant",
