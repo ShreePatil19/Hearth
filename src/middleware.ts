@@ -22,7 +22,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // Gated routes — require auth AND approved profile
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
+  if (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/opportunities") ||
+    pathname.startsWith("/opp/")
+  ) {
     const { supabase, response } = createMiddlewareClient(request);
     const {
       data: { user },
@@ -58,5 +63,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/api/cron/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/opportunities/:path*",
+    "/opp/:path*",
+    "/api/cron/:path*",
+  ],
 };
