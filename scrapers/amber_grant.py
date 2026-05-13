@@ -10,7 +10,7 @@ PAGES = [
     f"{BASE_URL}/get-an-amber-grant/",
     f"{BASE_URL}/all-grants/",
 ]
-HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/ShreePatil19/Hearth)"}
+HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/systems-collab/Hearth)"}
 
 # Source-specific metadata — no AI needed
 DEFAULTS = {

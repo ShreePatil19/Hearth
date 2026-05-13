@@ -2,7 +2,7 @@
 
 A platform for women founders to find and win funding.
 
-**Live:** [hearth-seven-zeta.vercel.app](https://hearth-seven-zeta.vercel.app)
+**Live:** [hearth.fishburners.com.au](https://hearth.fishburners.com.au)
 
 ## What's here
 
