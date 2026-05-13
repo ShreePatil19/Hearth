@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
+import { GoogleButton } from "@/components/auth/google-button";
+import { AuthDivider } from "@/components/auth/auth-divider";
 import { signup } from "./actions";
 
 export default async function SignupPage({
@@ -18,15 +20,19 @@ export default async function SignupPage({
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Create an account</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Start tracking your community&apos;s growth
+          Request access — an admin will review and approve.
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         {params.error && (
           <Alert variant="destructive" className="mb-4">
             {params.error}
           </Alert>
         )}
+
+        <GoogleButton redirect="/auth/pending" label="Sign up with Google" />
+
+        <AuthDivider />
 
         <form action={signup} className="space-y-4">
           <div className="space-y-2">
@@ -72,7 +78,7 @@ export default async function SignupPage({
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link href="/auth/login" className="font-medium text-orange-600 hover:underline">
             Sign in

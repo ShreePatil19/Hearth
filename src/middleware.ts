@@ -9,6 +9,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Admin sign-in page is public (the only un-gated path under /admin)
+  if (pathname === "/admin/login") {
+    return NextResponse.next();
+  }
+
   // Cron routes — require CRON_SECRET (Bearer header)
   if (pathname.startsWith("/api/cron/")) {
     const authHeader = request.headers.get("authorization");

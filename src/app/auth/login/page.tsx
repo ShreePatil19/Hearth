@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
+import { GoogleButton } from "@/components/auth/google-button";
+import { AuthDivider } from "@/components/auth/auth-divider";
 import { login } from "./actions";
 
 export default async function LoginPage({
@@ -12,6 +14,7 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; message?: string; redirect?: string }>;
 }) {
   const params = await searchParams;
+  const redirectTo = params.redirect || "/dashboard";
 
   return (
     <Card>
@@ -21,7 +24,7 @@ export default async function LoginPage({
           Sign in to your community dashboard
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         {params.error && (
           <Alert variant="destructive" className="mb-4">
             {params.error}
@@ -33,8 +36,12 @@ export default async function LoginPage({
           </Alert>
         )}
 
+        <GoogleButton redirect={redirectTo} />
+
+        <AuthDivider />
+
         <form action={login} className="space-y-4">
-          <input type="hidden" name="redirect" value={params.redirect || "/dashboard"} />
+          <input type="hidden" name="redirect" value={redirectTo} />
 
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -65,7 +72,7 @@ export default async function LoginPage({
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link href="/auth/signup" className="font-medium text-orange-600 hover:underline">
             Sign up
