@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Flame, ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  Flame,
+  LayoutDashboard,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -78,13 +84,23 @@ export function AdminSidebar({ pendingCount }: { pendingCount: number }) {
         })}
       </nav>
 
-      <div className="border-t p-3">
+      <div className="space-y-1 border-t p-3">
+        <p className="px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Switch view
+        </p>
+        <Link
+          href="/opportunities"
+          className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <Sparkles className="h-4 w-4" />
+          Funding Radar
+        </Link>
         <Link
           href="/dashboard"
           className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to dashboard
+          Community dashboard
         </Link>
       </div>
     </aside>
