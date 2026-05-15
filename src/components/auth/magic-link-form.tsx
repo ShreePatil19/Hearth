@@ -42,7 +42,7 @@ export function MagicLinkForm({ redirect = "/" }: { redirect?: string }) {
     <form onSubmit={handleSubmit} className="space-y-3">
       {error && <Alert variant="destructive">{error}</Alert>}
       {message && (
-        <Alert className="border-green-200 bg-green-50 text-green-800">
+        <Alert className="border-success-200 bg-success-50 text-success-800">
           {message}
         </Alert>
       )}

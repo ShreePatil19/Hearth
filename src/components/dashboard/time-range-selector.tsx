@@ -22,7 +22,7 @@ export function TimeRangeSelector() {
           key={range.value}
           variant={current === range.value ? "default" : "ghost"}
           size="sm"
-          className={current === range.value ? "bg-orange-500 hover:bg-orange-600" : ""}
+          className={current === range.value ? "bg-primary hover:bg-primary/90" : ""}
           onClick={() => {
             const params = new URLSearchParams(searchParams.toString());
             params.set("range", range.value);

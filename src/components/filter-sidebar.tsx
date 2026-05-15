@@ -118,11 +118,11 @@ function FilterControls() {
         onClick={toggleAussie}
         className={`flex w-full items-center gap-2.5 rounded-lg border-2 p-3 text-left transition-colors ${
           aussieOnly
-            ? "border-orange-400 bg-orange-50 text-orange-700"
-            : "border-border bg-card hover:border-orange-200 hover:bg-orange-50/50"
+            ? "border-hearth-200 bg-hearth-50 text-hearth-700"
+            : "border-border bg-card hover:border-hearth-200 hover:bg-hearth-50/50"
         }`}
       >
-        <MapPin className={`h-4 w-4 ${aussieOnly ? "text-orange-500" : "text-muted-foreground"}`} />
+        <MapPin className={`h-4 w-4 ${aussieOnly ? "text-hearth-500" : "text-muted-foreground"}`} />
         <span className="text-sm font-semibold">Australia Only</span>
       </button>
 
@@ -199,7 +199,7 @@ export function FilterSidebar() {
       <div className="md:hidden fixed bottom-4 right-4 z-50">
         <Sheet>
           <SheetTrigger asChild>
-            <Button size="lg" className="rounded-full shadow-lg bg-orange-500 hover:bg-orange-600" aria-label="Open filters">
+            <Button size="lg" className="rounded-full shadow-lg bg-primary hover:bg-primary/90" aria-label="Open filters">
               <Filter className="mr-2 h-4 w-4" />
               Filters
             </Button>

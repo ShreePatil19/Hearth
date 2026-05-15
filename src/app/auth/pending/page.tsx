@@ -14,7 +14,7 @@ export default function PendingPage() {
       <SiteHeader />
       <main className="container flex-1 py-16 md:py-24">
         <div className="mx-auto max-w-md space-y-6 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-orange-50 text-orange-600">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-hearth-50 text-hearth-600">
             <Clock className="h-7 w-7" />
           </div>
 

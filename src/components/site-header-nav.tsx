@@ -77,7 +77,7 @@ export function SiteHeaderNav({
   const showAuthControls = status !== "anonymous";
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-white/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between gap-4">
         <Link href={logoHref} className="flex shrink-0 items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 text-white">
@@ -106,9 +106,9 @@ export function SiteHeaderNav({
                   className={cn(
                     "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
                     active
-                      ? "bg-orange-50 text-orange-700"
+                      ? "bg-hearth-50 text-hearth-700"
                       : item.isAdmin
-                        ? "text-orange-700/80 hover:bg-orange-50/60 hover:text-orange-700"
+                        ? "text-hearth-700/80 hover:bg-hearth-50/60 hover:text-hearth-700"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
@@ -120,8 +120,8 @@ export function SiteHeaderNav({
                       className={cn(
                         "ml-1 h-5 min-w-[1.25rem] px-1.5 text-xs",
                         active
-                          ? "bg-orange-100 text-orange-700"
-                          : "bg-orange-50 text-orange-700",
+                          ? "bg-hearth-100 text-hearth-700"
+                          : "bg-hearth-50 text-hearth-700",
                       )}
                     >
                       {item.badge}
@@ -196,7 +196,7 @@ export function SiteHeaderNav({
                           className={cn(
                             "flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                             active
-                              ? "bg-orange-50 text-orange-700"
+                              ? "bg-hearth-50 text-hearth-700"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           )}
                         >
@@ -209,7 +209,7 @@ export function SiteHeaderNav({
                               variant="secondary"
                               className={cn(
                                 "h-5 min-w-[1.25rem] px-1.5 text-xs",
-                                active && "bg-orange-100 text-orange-700",
+                                active && "bg-hearth-100 text-hearth-700",
                               )}
                             >
                               {item.badge}

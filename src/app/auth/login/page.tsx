@@ -31,7 +31,7 @@ export default async function LoginPage({
           </Alert>
         )}
         {params.message && (
-          <Alert className="mb-4 border-green-200 bg-green-50 text-green-800">
+          <Alert className="mb-4 border-success-200 bg-success-50 text-success-800">
             {params.message}
           </Alert>
         )}
@@ -67,14 +67,14 @@ export default async function LoginPage({
             />
           </div>
 
-          <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600">
+          <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
             Sign In
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link href="/auth/signup" className="font-medium text-orange-600 hover:underline">
+          <Link href="/auth/signup" className="font-medium text-hearth-600 hover:underline">
             Sign up
           </Link>
         </p>

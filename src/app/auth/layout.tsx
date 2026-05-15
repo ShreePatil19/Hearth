@@ -7,7 +7,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-orange-50 to-background px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-hearth-50 to-background px-4">
       <Link href="/" className="mb-8 flex items-center gap-2.5">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 text-white">
           <Flame className="h-6 w-6" />

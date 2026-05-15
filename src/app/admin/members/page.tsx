@@ -53,7 +53,7 @@ function MemberRow({
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted">
           {profile.is_admin ? (
-            <Shield className="h-4 w-4 text-orange-600" />
+            <Shield className="h-4 w-4 text-hearth-600" />
           ) : (
             <UserCircle className="h-5 w-5 text-muted-foreground" />
           )}
@@ -62,7 +62,7 @@ function MemberRow({
           <div className="flex items-center gap-2">
             <p className="truncate font-medium">{email ?? profile.user_id}</p>
             {profile.is_admin && (
-              <Badge variant="outline" className="border-orange-200 text-orange-700">
+              <Badge variant="outline" className="border-hearth-200 text-hearth-700">
                 Admin
               </Badge>
             )}

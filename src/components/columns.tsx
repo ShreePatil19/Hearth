@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/utils";
 import type { Opportunity } from "@/lib/types";
 
 const TYPE_COLORS: Record<string, string> = {
-  grant: "bg-green-100 text-green-800 border-green-200",
+  grant: "bg-success-100 text-success-800 border-success-200",
   accelerator: "bg-blue-100 text-blue-800 border-blue-200",
   pitch_competition: "bg-purple-100 text-purple-800 border-purple-200",
   fund: "bg-amber-100 text-amber-800 border-amber-200",
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Opportunity>[] = [
       <div className="max-w-[280px]">
         <Link
           href={`/opp/${row.original.slug}`}
-          className="font-medium text-foreground hover:text-orange-600 transition-colors line-clamp-2"
+          className="font-medium text-foreground hover:text-primary transition-colors line-clamp-2"
         >
           {row.original.name}
         </Link>
@@ -111,7 +111,7 @@ export const columns: ColumnDef<Opportunity>[] = [
         href={row.original.source_url}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-muted-foreground/50 hover:text-orange-500 transition-colors"
+        className="text-muted-foreground/50 hover:text-primary transition-colors"
         title="View original source"
       >
         <ExternalLink className="h-4 w-4" />

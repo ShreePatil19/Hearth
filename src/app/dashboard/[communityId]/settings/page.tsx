@@ -38,7 +38,7 @@ export default async function SettingsPage({ params }: PageProps) {
     <div className="p-6 md:p-8 max-w-3xl">
       <Link
         href={`/dashboard/${communityId}`}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-orange-600 transition-colors mb-6"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to dashboard
@@ -53,7 +53,7 @@ export default async function SettingsPage({ params }: PageProps) {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Shield className="h-5 w-5 text-orange-500" />
+            <Shield className="h-5 w-5 text-hearth-500" />
             Channel Monitoring
           </CardTitle>
           <p className="text-sm text-muted-foreground">
@@ -74,7 +74,7 @@ export default async function SettingsPage({ params }: PageProps) {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Link2 className="h-5 w-5 text-orange-500" />
+            <Link2 className="h-5 w-5 text-hearth-500" />
             Shareable Dashboard
           </CardTitle>
           <p className="text-sm text-muted-foreground">

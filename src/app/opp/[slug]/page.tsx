@@ -51,7 +51,7 @@ export default async function OpportunityPage({ params }: PageProps) {
       <main className="container flex-1 py-6 md:py-8">
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-orange-600 transition-colors"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to all opportunities
@@ -66,7 +66,7 @@ export default async function OpportunityPage({ params }: PageProps) {
                   <p className="mt-1.5 text-muted-foreground">{opp.organisation}</p>
                 )}
               </div>
-              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100">{typeLabel}</Badge>
+              <Badge className="bg-hearth-100 text-hearth-700 hover:bg-hearth-100">{typeLabel}</Badge>
             </div>
           </CardHeader>
 
@@ -79,9 +79,9 @@ export default async function OpportunityPage({ params }: PageProps) {
             )}
 
             {opp.eligibility_summary && (
-              <div className="rounded-lg bg-orange-50 border border-orange-100 p-4">
-                <h3 className="mb-1.5 text-sm font-semibold uppercase tracking-wider text-orange-700">Eligibility</h3>
-                <p className="text-sm leading-relaxed text-orange-900/80">{opp.eligibility_summary}</p>
+              <div className="rounded-lg bg-hearth-50 border border-hearth-100 p-4">
+                <h3 className="mb-1.5 text-sm font-semibold uppercase tracking-wider text-hearth-700">Eligibility</h3>
+                <p className="text-sm leading-relaxed text-hearth-900/80">{opp.eligibility_summary}</p>
               </div>
             )}
 
@@ -152,7 +152,7 @@ export default async function OpportunityPage({ params }: PageProps) {
             <Separator />
 
             <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
                 <a href={applyUrl} target="_blank" rel="noopener noreferrer">
                   Apply on Source Site
                   <ExternalLink className="ml-2 h-4 w-4" />

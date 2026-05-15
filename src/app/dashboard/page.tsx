@@ -39,7 +39,7 @@ export default async function DashboardPage({
       {!communities || communities.length === 0 ? (
         // Onboarding
         <div className="text-center py-16">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-100 mb-6">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-hearth-100 mb-6">
             <span className="text-3xl">💬</span>
           </div>
           <h1 className="text-3xl font-bold mb-3">Welcome to Hearth</h1>
@@ -47,7 +47,7 @@ export default async function DashboardPage({
             Connect your Slack workspace to get privacy-first analytics for your
             women-founder community. We only store metadata — never message content.
           </p>
-          <Button size="lg" className="bg-orange-500 hover:bg-orange-600" asChild>
+          <Button size="lg" className="bg-primary hover:bg-primary/90" asChild>
             <a href="/api/slack/install">
               Connect Slack
             </a>

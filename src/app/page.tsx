@@ -81,16 +81,16 @@ export default async function LandingPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="border-b bg-gradient-to-b from-orange-50 to-background">
+        <section className="border-b bg-gradient-to-b from-hearth-50 to-background">
           <div className="container py-16 md:py-24">
             <div className="mx-auto max-w-3xl space-y-6 text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-medium text-orange-700">
+              <div className="inline-flex items-center gap-2 rounded-full border border-hearth-200 bg-card px-3 py-1 text-xs font-medium text-hearth-700">
                 <Sparkles className="h-3.5 w-3.5" />
                 Invite-only · Fishburners community
               </div>
               <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
                 Funding, curated for{" "}
-                <span className="text-orange-500">women founders</span>
+                <span className="text-hearth-500">women founders</span>
               </h1>
               <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
                 Hearth aggregates grants, accelerators, pitch competitions, and
@@ -147,10 +147,10 @@ export default async function LandingPage() {
         </section>
 
         {/* For community managers */}
-        <section className="border-t bg-white">
+        <section className="border-t bg-card">
           <div className="container py-16 md:py-20">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700">
+              <div className="inline-flex items-center gap-2 rounded-full bg-hearth-100 px-3 py-1 text-xs font-medium text-hearth-700">
                 <Shield className="h-3.5 w-3.5" />
                 Privacy-first analytics
               </div>
@@ -164,10 +164,10 @@ export default async function LandingPage() {
             </div>
 
             <div className="mx-auto mt-10 grid max-w-4xl gap-6 md:grid-cols-2">
-              <Card className="border-orange-200 bg-orange-50/30">
+              <Card className="border-hearth-200 bg-hearth-50/30">
                 <CardContent className="pt-6">
                   <div className="mb-4 flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-orange-500" />
+                    <Eye className="h-5 w-5 text-hearth-500" />
                     <h3 className="text-lg font-semibold">What you see</h3>
                   </div>
                   <ul className="space-y-2.5">
@@ -180,7 +180,7 @@ export default async function LandingPage() {
                       "Shareable dashboard for board reports",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-2 text-sm">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-hearth-500" />
                         {item}
                       </li>
                     ))}
@@ -188,10 +188,10 @@ export default async function LandingPage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-green-200 bg-green-50/30">
+              <Card className="border-success-200 bg-success-50/30">
                 <CardContent className="pt-6">
                   <div className="mb-4 flex items-center gap-2">
-                    <EyeOff className="h-5 w-5 text-green-600" />
+                    <EyeOff className="h-5 w-5 text-success-600" />
                     <h3 className="text-lg font-semibold">What we never touch</h3>
                   </div>
                   <ul className="space-y-2.5">
@@ -204,7 +204,7 @@ export default async function LandingPage() {
                       "Data sold to third parties — never",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-2 text-sm">
-                        <Lock className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+                        <Lock className="mt-0.5 h-4 w-4 shrink-0 text-success-600" />
                         {item}
                       </li>
                     ))}
@@ -219,7 +219,7 @@ export default async function LandingPage() {
         <section className="border-t bg-muted/30">
           <div className="container py-12">
             <div className="mx-auto flex max-w-2xl items-start gap-4 rounded-lg border bg-card p-6">
-              <Lock className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
+              <Lock className="mt-0.5 h-5 w-5 shrink-0 text-hearth-600" />
               <div className="space-y-1">
                 <p className="font-medium">Invite-only access</p>
                 <p className="text-sm text-muted-foreground">
@@ -256,7 +256,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border bg-card p-6">
-      <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
+      <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-hearth-50 text-hearth-600">
         {icon}
       </div>
       <h3 className="mb-2 font-semibold">{title}</h3>
