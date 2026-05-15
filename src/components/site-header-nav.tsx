@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   ArrowRight,
   Flame,
-  LayoutDashboard,
   LogOut,
   Menu,
   Shield,
@@ -52,12 +51,6 @@ export function SiteHeaderNav({
           href: "/opportunities",
           icon: Sparkles,
           matchPrefix: "/opportunities",
-        },
-        {
-          label: "Dashboard",
-          href: "/dashboard",
-          icon: LayoutDashboard,
-          matchPrefix: "/dashboard",
         },
         ...(isAdmin
           ? [
