@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <main className="container flex-1 py-8 max-w-3xl">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-orange-600 transition-colors mb-6"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to home
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5 text-orange-500" />
+                <Eye className="h-5 w-5 text-hearth-500" />
                 What We Collect
               </CardTitle>
             </CardHeader>
@@ -38,14 +38,14 @@ export default function PrivacyPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-green-200 bg-green-50/30">
+          <Card className="border-success-200 bg-success-50/30">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-800">
+              <CardTitle className="flex items-center gap-2 text-success-800">
                 <Shield className="h-5 w-5" />
                 What We NEVER Collect
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-green-900/80">
+            <CardContent className="space-y-2 text-sm text-success-900/80">
               <p><strong>Message content:</strong> We never read, store, or process the text of any message. Ever.</p>
               <p><strong>Direct messages:</strong> We have zero access to DMs.</p>
               <p><strong>Files or attachments:</strong> Not accessed or stored.</p>
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Lock className="h-5 w-5 text-orange-500" />
+                <Lock className="h-5 w-5 text-hearth-500" />
                 How We Protect Your Data
               </CardTitle>
             </CardHeader>
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Trash2 className="h-5 w-5 text-orange-500" />
+                <Trash2 className="h-5 w-5 text-hearth-500" />
                 Your Right to Delete
               </CardTitle>
             </CardHeader>
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Questions? Reach out at the{" "}
-              <a href="https://github.com/ShreePatil19/Hearth" className="text-orange-600 hover:underline">
+              <a href="https://github.com/ShreePatil19/Hearth" className="text-hearth-600 hover:underline">
                 GitHub repo
               </a>
               .

@@ -44,7 +44,7 @@ export default async function AdminLoginPage({
 
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-orange-50 text-orange-600">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-hearth-50 text-hearth-600">
             <Shield className="h-5 w-5" />
           </div>
           <CardTitle className="text-xl">Admin sign-in</CardTitle>
@@ -58,7 +58,7 @@ export default async function AdminLoginPage({
             <Alert variant="destructive">{params.error}</Alert>
           )}
           {params.message && (
-            <Alert className="border-green-200 bg-green-50 text-green-800">
+            <Alert className="border-success-200 bg-success-50 text-success-800">
               {params.message}
             </Alert>
           )}
@@ -93,7 +93,7 @@ export default async function AdminLoginPage({
             </div>
             <Button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600"
+              className="w-full bg-primary hover:bg-primary/90"
             >
               Sign in
             </Button>

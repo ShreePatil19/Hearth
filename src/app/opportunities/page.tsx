@@ -52,15 +52,15 @@ export default async function OpportunitiesPage({
       <SiteHeader />
 
       {/* Hero */}
-      <section className="border-b bg-gradient-to-b from-orange-50 to-background">
+      <section className="border-b bg-gradient-to-b from-hearth-50 to-background">
         <div className="container py-10 md:py-14">
-          <div className="flex items-center gap-2 text-sm font-medium text-orange-600 mb-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-hearth-600 mb-3">
             <Sparkles className="h-4 w-4" />
             <span>Funding opportunities for women founders</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
             Find your next
-            <span className="text-orange-500"> funding opportunity</span>
+            <span className="text-hearth-500"> funding opportunity</span>
           </h1>
           <p className="mt-3 max-w-2xl text-base text-muted-foreground md:text-lg">
             Grants, accelerators, pitch competitions, and funds — all in one place.

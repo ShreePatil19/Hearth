@@ -73,14 +73,14 @@ export default async function SignupPage({
             />
           </div>
 
-          <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600">
+          <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
             Create Account
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/auth/login" className="font-medium text-orange-600 hover:underline">
+          <Link href="/auth/login" className="font-medium text-hearth-600 hover:underline">
             Sign in
           </Link>
         </p>

@@ -24,6 +24,66 @@
     --input: 30 15% 88%;
     --ring: 24 75% 48%;
     --radius: 0.625rem;
+
+    --orange-50: 33 100% 96%;
+    --orange-100: 34 100% 92%;
+    --orange-200: 32 98% 83%;
+    --orange-300: 29 97% 74%;
+    --orange-400: 27 96% 61%;
+    --orange-500: 25 95% 53%;
+    --orange-600: 21 90% 48%;
+    --orange-700: 17 88% 40%;
+    --orange-900: 15 75% 28%;
+
+    --green-50: 138 76% 97%;
+    --green-100: 141 84% 93%;
+    --green-200: 141 79% 85%;
+    --green-600: 142 71% 45%;
+    --green-800: 145 63% 32%;
+    --green-900: 145 63% 25%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 15 52% 7%;
+    --foreground: 32 85% 92%;
+    --card: 15 50% 12%;
+    --card-foreground: 32 85% 92%;
+    --popover: 15 50% 12%;
+    --popover-foreground: 32 85% 92%;
+    --primary: 24 80% 54%;
+    --primary-foreground: 15 52% 7%;
+    --secondary: 15 25% 15%;
+    --secondary-foreground: 32 60% 85%;
+    --muted: 15 20% 14%;
+    --muted-foreground: 20 15% 60%;
+    --accent: 24 40% 16%;
+    --accent-foreground: 24 75% 70%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 20 25% 18%;
+    --input: 20 25% 18%;
+    --ring: 24 80% 54%;
+
+    --orange-50: 24 40% 14%;
+    --orange-100: 24 45% 18%;
+    --orange-200: 24 50% 25%;
+    --orange-300: 24 55% 32%;
+    --orange-400: 24 65% 42%;
+    --orange-500: 24 80% 54%;
+    --orange-600: 24 85% 60%;
+    --orange-700: 24 75% 70%;
+    --orange-900: 24 60% 80%;
+
+    --green-50: 145 30% 12%;
+    --green-100: 145 35% 16%;
+    --green-200: 145 40% 22%;
+    --green-600: 142 60% 55%;
+    --green-800: 145 55% 70%;
+    --green-900: 145 50% 75%;
+    --success: 142 60% 55%;
+    --success-foreground: 0 0% 100%;
   }
 }
 

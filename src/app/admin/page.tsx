@@ -43,7 +43,7 @@ function StatCard({
         <div
           className={
             accent === "warning"
-              ? "rounded-md bg-orange-50 p-1.5 text-orange-600"
+              ? "rounded-md bg-hearth-50 p-1.5 text-hearth-600"
               : "rounded-md bg-muted p-1.5 text-muted-foreground"
           }
         >
@@ -114,7 +114,7 @@ export default async function AdminOverview() {
         {(pendingCount ?? 0) > 0 && (
           <Link
             href="/admin/members"
-            className="inline-flex items-center gap-1.5 rounded-md bg-orange-50 px-3 py-2 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-100"
+            className="inline-flex items-center gap-1.5 rounded-md bg-hearth-50 px-3 py-2 text-sm font-medium text-hearth-700 transition-colors hover:bg-hearth-100"
           >
             Review {pendingCount} pending
             <ArrowUpRight className="h-4 w-4" />
@@ -229,7 +229,7 @@ function StatusRow({
   variant: "warning" | "success" | "muted";
 }) {
   const styles = {
-    warning: "bg-orange-100 text-orange-700",
+    warning: "bg-hearth-100 text-hearth-700",
     success: "bg-emerald-100 text-emerald-700",
     muted: "bg-muted text-muted-foreground",
   }[variant];

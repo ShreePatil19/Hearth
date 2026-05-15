@@ -14,11 +14,11 @@ interface CohortRetentionTableProps {
 }
 
 function getRetentionColor(pct: number): string {
-  if (pct >= 80) return "bg-orange-500 text-white";
-  if (pct >= 60) return "bg-orange-400 text-white";
-  if (pct >= 40) return "bg-orange-300 text-orange-900";
-  if (pct >= 20) return "bg-orange-200 text-orange-800";
-  if (pct > 0) return "bg-orange-100 text-orange-700";
+  if (pct >= 80) return "bg-hearth-500 text-white";
+  if (pct >= 60) return "bg-hearth-400 text-white";
+  if (pct >= 40) return "bg-hearth-300 text-hearth-900";
+  if (pct >= 20) return "bg-hearth-200 text-hearth-700";
+  if (pct > 0) return "bg-hearth-100 text-hearth-700";
   return "bg-gray-50 text-gray-400";
 }
 

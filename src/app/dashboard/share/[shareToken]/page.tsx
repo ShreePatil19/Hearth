@@ -43,7 +43,7 @@ export default async function SharedDashboardPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-white py-4">
+      <header className="border-b bg-background py-4">
         <div className="container flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 text-white">

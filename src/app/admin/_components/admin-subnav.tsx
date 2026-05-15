@@ -28,7 +28,7 @@ export function AdminSubnav({ pendingCount }: { pendingCount: number }) {
   ];
 
   return (
-    <div className="border-b bg-white">
+    <div className="border-b bg-background">
       <div className="container flex h-12 items-center gap-1 overflow-x-auto">
         {tabs.map((tab) => {
           const active = tab.exact
@@ -42,7 +42,7 @@ export function AdminSubnav({ pendingCount }: { pendingCount: number }) {
               className={cn(
                 "flex h-12 shrink-0 items-center gap-1.5 border-b-2 px-3 text-sm font-medium transition-colors",
                 active
-                  ? "border-orange-500 text-orange-700"
+                  ? "border-primary text-hearth-700"
                   : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
@@ -53,7 +53,7 @@ export function AdminSubnav({ pendingCount }: { pendingCount: number }) {
                   variant="secondary"
                   className={cn(
                     "ml-0.5 h-5 min-w-[1.25rem] px-1.5 text-xs",
-                    active ? "bg-orange-100 text-orange-700" : "bg-orange-50 text-orange-700",
+                    active ? "bg-hearth-100 text-hearth-700" : "bg-hearth-50 text-hearth-700",
                   )}
                 >
                   {tab.badge}

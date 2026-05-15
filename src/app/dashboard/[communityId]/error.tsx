@@ -22,7 +22,7 @@ export default function CommunityDashboardError({
           <p className="text-sm text-muted-foreground mb-6">
             {error.message || "Failed to load dashboard data. Please try again."}
           </p>
-          <Button onClick={reset} className="bg-orange-500 hover:bg-orange-600">
+          <Button onClick={reset} className="bg-primary hover:bg-primary/90">
             Try Again
           </Button>
         </CardContent>

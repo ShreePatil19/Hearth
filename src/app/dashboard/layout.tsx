@@ -48,8 +48,8 @@ export default async function DashboardLayout({
               href={`/dashboard/${community.id}`}
               className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
                 isActive
-                  ? "bg-orange-50 text-orange-700 font-medium"
-                  : "hover:bg-orange-50 text-foreground"
+                  ? "bg-hearth-50 text-hearth-700 font-medium"
+                  : "hover:bg-hearth-50 text-foreground"
               }`}
             >
               <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
@@ -66,7 +66,7 @@ export default async function DashboardLayout({
 
         <Separator className="my-2" />
 
-        <Button variant="ghost" size="sm" className="w-full justify-start text-orange-600" asChild>
+        <Button variant="ghost" size="sm" className="w-full justify-start text-hearth-600" asChild>
           <a href="/api/slack/install">
             <Plus className="mr-2 h-4 w-4" />
             Connect Slack
@@ -89,7 +89,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       {/* Mobile top bar */}
-      <header className="flex md:hidden items-center justify-between border-b bg-white px-4 py-3">
+      <header className="flex md:hidden items-center justify-between border-b bg-background px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 text-white">
             <Flame className="h-4 w-4" />
@@ -106,7 +106,7 @@ export default async function DashboardLayout({
           <SheetContent side="left" className="w-[85vw] max-w-xs p-0">
             <SheetHeader className="p-4 pb-0">
               <SheetTitle className="flex items-center gap-2 text-sm">
-                <Flame className="h-4 w-4 text-orange-500" />
+                <Flame className="h-4 w-4 text-hearth-500" />
                 Dashboard
               </SheetTitle>
             </SheetHeader>
@@ -116,7 +116,7 @@ export default async function DashboardLayout({
       </header>
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 flex-col border-r bg-white">
+      <aside className="hidden md:flex w-64 flex-col border-r bg-card">
         <div className="p-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 text-white">

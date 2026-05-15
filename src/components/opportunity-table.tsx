@@ -55,7 +55,7 @@ export function OpportunityTable({ data }: OpportunityTableProps) {
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-orange-50/50 transition-colors">
+              <TableRow key={row.id} className="hover:bg-hearth-50/50 transition-colors">
                 {row.getVisibleCells().map((cell) => {
                   const hideOnMobile = (cell.column.columnDef.meta as Record<string, boolean> | undefined)?.hideOnMobile;
                   return (

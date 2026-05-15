@@ -20,7 +20,7 @@ export function LurkerRatioCard({ totalMembers, activePosters }: LurkerRatioCard
         {/* Progress bar */}
         <div className="h-4 w-full rounded-full bg-gray-100 overflow-hidden mb-4">
           <div
-            className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full transition-all"
+            className="h-full bg-gradient-to-r from-hearth-400 to-hearth-500 rounded-full transition-all"
             style={{ width: `${activePct}%` }}
           />
         </div>
@@ -34,11 +34,11 @@ export function LurkerRatioCard({ totalMembers, activePosters }: LurkerRatioCard
             <p className="text-lg font-bold">{totalMembers}</p>
           </div>
           <div>
-            <div className="flex items-center justify-center gap-1 text-orange-600 mb-1">
+            <div className="flex items-center justify-center gap-1 text-hearth-600 mb-1">
               <MessageSquare className="h-3.5 w-3.5" />
               <span className="text-[10px] uppercase tracking-wider font-medium">Active</span>
             </div>
-            <p className="text-lg font-bold text-orange-600">{activePosters}</p>
+            <p className="text-lg font-bold text-hearth-600">{activePosters}</p>
             <p className="text-[10px] text-muted-foreground">{activePct}%</p>
           </div>
           <div>
