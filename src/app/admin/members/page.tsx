@@ -15,6 +15,7 @@ import {
   rejectMember,
   reinstateMember,
 } from "./actions";
+import { PromoteAdminButton } from "./_components/promote-admin-button";
 
 export const metadata = {
   title: "Members · Hearth Admin",
@@ -181,13 +182,19 @@ export default async function MembersPage() {
                 email={emailById.get(profile.user_id)}
                 actions={
                   !profile.is_admin && (
-                    <form action={rejectMember}>
-                      <input type="hidden" name="user_id" value={profile.user_id} />
-                      <Button type="submit" size="sm" variant="ghost" className="gap-1.5 text-muted-foreground">
-                        <X className="h-4 w-4" />
-                        Revoke
-                      </Button>
-                    </form>
+                    <>
+                      <PromoteAdminButton
+                        userId={profile.user_id}
+                        email={emailById.get(profile.user_id)}
+                      />
+                      <form action={rejectMember}>
+                        <input type="hidden" name="user_id" value={profile.user_id} />
+                        <Button type="submit" size="sm" variant="ghost" className="gap-1.5 text-muted-foreground">
+                          <X className="h-4 w-4" />
+                          Revoke
+                        </Button>
+                      </form>
+                    </>
                   )
                 }
               />
