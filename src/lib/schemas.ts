@@ -33,6 +33,22 @@ export const industryEnum = z.enum([
 
 export const geoEnum = z.enum(["AU", "US", "UK", "EU", "Global", "APAC"]);
 
+export const supportTypeEnum = z.enum([
+  "funding",
+  "mentorship",
+  "network",
+  "loan",
+  "education",
+  "workspace",
+]);
+
+export const applicationCycleEnum = z.enum([
+  "rolling",
+  "annual",
+  "cohort",
+  "ongoing",
+]);
+
 export const taggedFieldsSchema = z.object({
   type: opportunityTypeEnum,
   description: z.string().max(500),
@@ -45,6 +61,11 @@ export const taggedFieldsSchema = z.object({
   currency: z.string().default("AUD"),
   deadline: z.string().nullable(), // ISO date string
   women_focused: z.boolean().default(true),
+  equity_free: z.boolean().default(true),
+  support_types: z.array(supportTypeEnum).min(1).default(["funding"]),
+  impact_focus: z.boolean().default(false),
+  revenue_required: z.boolean().nullable().default(null),
+  application_cycle: applicationCycleEnum.default("ongoing"),
 });
 
 export const opportunitySchema = z.object({
@@ -122,3 +143,5 @@ export const messageEventSchema = z.object({
 export type Community = z.infer<typeof communitySchema>;
 export type Channel = z.infer<typeof channelSchema>;
 export type MessageEvent = z.infer<typeof messageEventSchema>;
+export type SupportType = z.infer<typeof supportTypeEnum>;
+export type ApplicationCycle = z.infer<typeof applicationCycleEnum>;
