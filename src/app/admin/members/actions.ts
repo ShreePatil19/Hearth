@@ -2,24 +2,23 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import type { ActionResult } from "@/lib/action-result";
 
 type MemberStatus = "pending" | "approved" | "rejected";
 
 async function setMemberStatus(
   userId: string,
   status: MemberStatus,
-): Promise<void> {
+): Promise<ActionResult> {
   const supabase = await createClient();
   const {
     data: { user: currentUser },
   } = await supabase.auth.getUser();
 
   if (!currentUser) {
-    console.error("setMemberStatus: not signed in");
-    return;
+    return { error: "You must be signed in." };
   }
 
-  // Defensive admin check (middleware already gates /admin/* but belt-and-braces)
   const { data: me } = await supabase
     .from("user_profiles")
     .select("is_admin")
@@ -27,8 +26,7 @@ async function setMemberStatus(
     .maybeSingle();
 
   if (!me?.is_admin) {
-    console.error("setMemberStatus: forbidden — not admin");
-    return;
+    return { error: "Only admins can manage members." };
   }
 
   const update: Record<string, unknown> = { status };
@@ -43,33 +41,46 @@ async function setMemberStatus(
     .eq("user_id", userId);
 
   if (error) {
-    console.error("setMemberStatus error:", error);
+    return { error: `Failed to update member: ${error.message}` };
   }
 
   revalidatePath("/admin/members");
+  return null;
 }
 
-export async function approveMember(formData: FormData): Promise<void> {
+export async function approveMember(
+  _prevState: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
   const userId = formData.get("user_id") as string;
-  if (!userId) return;
-  await setMemberStatus(userId, "approved");
+  if (!userId) return { error: "Missing user ID." };
+  return setMemberStatus(userId, "approved");
 }
 
-export async function rejectMember(formData: FormData): Promise<void> {
+export async function rejectMember(
+  _prevState: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
   const userId = formData.get("user_id") as string;
-  if (!userId) return;
-  await setMemberStatus(userId, "rejected");
+  if (!userId) return { error: "Missing user ID." };
+  return setMemberStatus(userId, "rejected");
 }
 
-export async function reinstateMember(formData: FormData): Promise<void> {
+export async function reinstateMember(
+  _prevState: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
   const userId = formData.get("user_id") as string;
-  if (!userId) return;
-  await setMemberStatus(userId, "pending");
+  if (!userId) return { error: "Missing user ID." };
+  return setMemberStatus(userId, "pending");
 }
 
-export async function promoteMember(formData: FormData): Promise<void> {
+export async function promoteMember(
+  _prevState: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
   const userId = formData.get("user_id") as string;
-  if (!userId) return;
+  if (!userId) return { error: "Missing user ID." };
 
   const supabase = await createClient();
   const {
@@ -77,8 +88,7 @@ export async function promoteMember(formData: FormData): Promise<void> {
   } = await supabase.auth.getUser();
 
   if (!currentUser) {
-    console.error("promoteMember: not signed in");
-    return;
+    return { error: "You must be signed in." };
   }
 
   const { data: me } = await supabase
@@ -88,8 +98,7 @@ export async function promoteMember(formData: FormData): Promise<void> {
     .maybeSingle();
 
   if (!me?.is_admin) {
-    console.error("promoteMember: forbidden — not admin");
-    return;
+    return { error: "Only admins can promote members." };
   }
 
   const { error } = await supabase
@@ -99,8 +108,9 @@ export async function promoteMember(formData: FormData): Promise<void> {
     .eq("status", "approved");
 
   if (error) {
-    console.error("promoteMember error:", error);
+    return { error: `Failed to promote member: ${error.message}` };
   }
 
   revalidatePath("/admin/members");
+  return null;
 }

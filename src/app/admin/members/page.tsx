@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ActionForm } from "@/components/action-form";
 import {
   approveMember,
   rejectMember,
@@ -139,20 +140,20 @@ export default async function MembersPage() {
                 email={emailById.get(profile.user_id)}
                 actions={
                   <>
-                    <form action={approveMember}>
+                    <ActionForm action={approveMember}>
                       <input type="hidden" name="user_id" value={profile.user_id} />
                       <Button type="submit" size="sm" className="gap-1.5">
                         <Check className="h-4 w-4" />
                         Approve
                       </Button>
-                    </form>
-                    <form action={rejectMember}>
+                    </ActionForm>
+                    <ActionForm action={rejectMember}>
                       <input type="hidden" name="user_id" value={profile.user_id} />
                       <Button type="submit" size="sm" variant="outline" className="gap-1.5">
                         <X className="h-4 w-4" />
                         Reject
                       </Button>
-                    </form>
+                    </ActionForm>
                   </>
                 }
               />
@@ -187,13 +188,13 @@ export default async function MembersPage() {
                         userId={profile.user_id}
                         email={emailById.get(profile.user_id)}
                       />
-                      <form action={rejectMember}>
+                      <ActionForm action={rejectMember}>
                         <input type="hidden" name="user_id" value={profile.user_id} />
                         <Button type="submit" size="sm" variant="ghost" className="gap-1.5 text-muted-foreground">
                           <X className="h-4 w-4" />
                           Revoke
                         </Button>
-                      </form>
+                      </ActionForm>
                     </>
                   )
                 }
@@ -221,13 +222,13 @@ export default async function MembersPage() {
                   profile={profile}
                   email={emailById.get(profile.user_id)}
                   actions={
-                    <form action={reinstateMember}>
+                    <ActionForm action={reinstateMember}>
                       <input type="hidden" name="user_id" value={profile.user_id} />
                       <Button type="submit" size="sm" variant="outline" className="gap-1.5">
                         <RotateCcw className="h-4 w-4" />
                         Move to pending
                       </Button>
-                    </form>
+                    </ActionForm>
                   }
                 />
               ))}
