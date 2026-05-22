@@ -97,6 +97,104 @@ async function run() {
     "Service role can read message events"
   );
 
+  // ============================================================
+  // 8. user_profiles UPDATE policy hardening (migration 005, issue #17)
+  // Creates two ephemeral auth users, exercises the policies +
+  // immutability trigger, cleans up at the end.
+  // ============================================================
+  console.log("\nTest 8: user_profiles RLS hardening (migration 005)");
+
+  const ts = Date.now();
+  const userAEmail = `rls-test-${ts}-a@hearth.test`;
+  const userBEmail = `rls-test-${ts}-b@hearth.test`;
+  const password = `Test-${ts}-rls-Pw!9`;
+
+  const { data: createA, error: createAErr } = await admin.auth.admin.createUser({
+    email: userAEmail,
+    password,
+    email_confirm: true,
+  });
+  const { data: createB, error: createBErr } = await admin.auth.admin.createUser({
+    email: userBEmail,
+    password,
+    email_confirm: true,
+  });
+
+  if (createAErr || createBErr || !createA.user || !createB.user) {
+    console.error(`  ❌ FAIL: could not create test users — ${createAErr?.message ?? createBErr?.message ?? "unknown"}`);
+    failed++;
+  } else {
+    const userAId = createA.user.id;
+    const userBId = createB.user.id;
+
+    try {
+      // Bring userA out of pending so admin operations are realistic
+      await admin.from("user_profiles").update({ status: "approved" }).eq("user_id", userAId);
+
+      // Sign in as userA → user-scoped client respects RLS + triggers
+      const userAClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      );
+      const { error: signInErr } = await userAClient.auth.signInWithPassword({
+        email: userAEmail,
+        password,
+      });
+      assert(signInErr === null, "User A can sign in");
+
+      // Non-admin self-promote attempt → trigger raises
+      const { error: promoteErr } = await userAClient
+        .from("user_profiles")
+        .update({ is_admin: true })
+        .eq("user_id", userAId);
+      assert(
+        promoteErr !== null,
+        "Non-admin cannot self-promote to is_admin (trigger blocks)",
+      );
+
+      // Non-admin self-status-change → trigger raises
+      const { error: statusErr } = await userAClient
+        .from("user_profiles")
+        .update({ status: "approved" })
+        .eq("user_id", userAId);
+      assert(
+        statusErr !== null,
+        "Non-admin cannot change own status (trigger blocks)",
+      );
+
+      // Non-admin can update own display_name (self_update RLS + trigger allows)
+      const { error: nameErr } = await userAClient
+        .from("user_profiles")
+        .update({ display_name: "User A renamed" })
+        .eq("user_id", userAId);
+      assert(nameErr === null, "Non-admin can change own display_name");
+
+      // Non-admin updating another user's row → RLS denies, 0 rows touched
+      const { data: hackRows } = await userAClient
+        .from("user_profiles")
+        .update({ display_name: "hacked" })
+        .eq("user_id", userBId)
+        .select();
+      assert(
+        !hackRows || hackRows.length === 0,
+        "Non-admin cannot update another user's profile (RLS blocks)",
+      );
+
+      // Service role can flip is_admin on user B (admin path still works)
+      const { error: adminFlipErr } = await admin
+        .from("user_profiles")
+        .update({ is_admin: true })
+        .eq("user_id", userBId);
+      assert(adminFlipErr === null, "service_role can flip is_admin on another user");
+
+      await userAClient.auth.signOut();
+    } finally {
+      // Cleanup — best-effort; auth.users CASCADE removes the profile row.
+      await admin.auth.admin.deleteUser(userAId).catch(() => {});
+      await admin.auth.admin.deleteUser(userBId).catch(() => {});
+    }
+  }
+
   // Summary
   console.log(`\n${"=".repeat(40)}`);
   console.log(`Results: ${passed} passed, ${failed} failed`);
