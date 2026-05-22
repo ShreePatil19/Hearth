@@ -1,37 +1,36 @@
-/**
- * Simple in-memory rate limiter for API routes.
- * Tracks requests per IP with a sliding window.
- */
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
-const requests = new Map<string, { count: number; resetAt: number }>();
+function createRedis(): Redis | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  return new Redis({ url, token });
+}
 
-// Clean up old entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  const keys = Array.from(requests.keys());
-  for (const key of keys) {
-    const val = requests.get(key);
-    if (val && val.resetAt < now) requests.delete(key);
-  }
-}, 5 * 60 * 1000);
+const redis = createRedis();
 
-export function rateLimit(
-  ip: string,
-  { limit = 10, windowMs = 60_000 }: { limit?: number; windowMs?: number } = {}
-): { success: boolean; remaining: number } {
-  const now = Date.now();
-  const key = ip;
-  const existing = requests.get(key);
+export const authLimiter = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, "60 s"),
+      prefix: "rl:auth",
+    })
+  : null;
 
-  if (!existing || existing.resetAt < now) {
-    requests.set(key, { count: 1, resetAt: now + windowMs });
-    return { success: true, remaining: limit - 1 };
-  }
+export const apiLimiter = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(20, "60 s"),
+      prefix: "rl:api",
+    })
+  : null;
 
-  if (existing.count >= limit) {
-    return { success: false, remaining: 0 };
-  }
-
-  existing.count++;
-  return { success: true, remaining: limit - existing.count };
+export async function rateLimit(
+  identifier: string,
+  limiter: Ratelimit | null = authLimiter,
+): Promise<{ success: boolean; remaining: number }> {
+  if (!limiter) return { success: true, remaining: 999 };
+  const { success, remaining } = await limiter.limit(identifier);
+  return { success, remaining };
 }
