@@ -41,7 +41,9 @@ AS $$
 BEGIN
   -- service_role bypasses (backfills, admin scripts), and admins via
   -- authenticated session (is_admin flag) keep full write access.
-  IF current_user = 'service_role' OR (SELECT public.is_admin()) THEN
+  -- Use auth.role() (JWT claim) not current_user — inside SECURITY DEFINER,
+  -- current_user is the function owner, never the calling role.
+  IF auth.role() = 'service_role' OR (SELECT public.is_admin()) THEN
     RETURN NEW;
   END IF;
 
