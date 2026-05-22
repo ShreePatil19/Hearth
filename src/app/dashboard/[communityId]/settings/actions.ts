@@ -12,7 +12,17 @@ export async function toggleChannel(formData: FormData) {
 
   const supabase = await createClient();
 
-  // RLS ensures only the owner can update
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (!user || authError) return;
+
+  const { data: community } = await supabase
+    .from("communities")
+    .select("owner_user_id")
+    .eq("id", communityId)
+    .single();
+
+  if (!community || community.owner_user_id !== user.id) return;
+
   await supabase
     .from("channels")
     .update({ opted_in: optedIn })
@@ -26,7 +36,17 @@ export async function regenerateShareToken(formData: FormData) {
   const communityId = formData.get("communityId") as string;
   const supabase = await createClient();
 
-  // Generate new UUID share token
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (!user || authError) return;
+
+  const { data: community } = await supabase
+    .from("communities")
+    .select("owner_user_id")
+    .eq("id", communityId)
+    .single();
+
+  if (!community || community.owner_user_id !== user.id) return;
+
   await supabase
     .from("communities")
     .update({ share_token: crypto.randomUUID() })
@@ -39,6 +59,17 @@ export async function disableSharing(formData: FormData) {
   const communityId = formData.get("communityId") as string;
   const supabase = await createClient();
 
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (!user || authError) return;
+
+  const { data: community } = await supabase
+    .from("communities")
+    .select("owner_user_id")
+    .eq("id", communityId)
+    .single();
+
+  if (!community || community.owner_user_id !== user.id) return;
+
   await supabase
     .from("communities")
     .update({ share_token: null })
@@ -49,9 +80,20 @@ export async function disableSharing(formData: FormData) {
 
 export async function revokeIntegration(formData: FormData) {
   const communityId = formData.get("communityId") as string;
-  const admin = createAdminClient();
+  const supabase = await createClient();
 
-  // Cascade delete via RPC
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (!user || authError) return;
+
+  const { data: community } = await supabase
+    .from("communities")
+    .select("owner_user_id")
+    .eq("id", communityId)
+    .single();
+
+  if (!community || community.owner_user_id !== user.id) return;
+
+  const admin = createAdminClient();
   await admin.rpc("revoke_community", { p_community_id: communityId });
 
   redirect("/dashboard");
