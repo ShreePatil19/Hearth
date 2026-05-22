@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { ActionForm } from "@/components/action-form";
 import { ChannelToggles } from "./channel-toggles";
 import { toggleChannel, regenerateShareToken, disableSharing, revokeIntegration } from "./actions";
 
@@ -94,27 +95,27 @@ export default async function SettingsPage({ params }: PageProps) {
                 />
               </div>
               <div className="flex gap-2">
-                <form action={regenerateShareToken}>
+                <ActionForm action={regenerateShareToken}>
                   <input type="hidden" name="communityId" value={communityId} />
                   <Button type="submit" variant="outline" size="sm">
                     Regenerate Link
                   </Button>
-                </form>
-                <form action={disableSharing}>
+                </ActionForm>
+                <ActionForm action={disableSharing}>
                   <input type="hidden" name="communityId" value={communityId} />
                   <Button type="submit" variant="ghost" size="sm" className="text-muted-foreground">
                     Disable Sharing
                   </Button>
-                </form>
+                </ActionForm>
               </div>
             </div>
           ) : (
-            <form action={regenerateShareToken}>
+            <ActionForm action={regenerateShareToken}>
               <input type="hidden" name="communityId" value={communityId} />
               <Button type="submit" variant="outline" size="sm">
                 Enable Shareable Link
               </Button>
-            </form>
+            </ActionForm>
           )}
         </CardContent>
       </Card>
@@ -134,12 +135,12 @@ export default async function SettingsPage({ params }: PageProps) {
           </p>
         </CardHeader>
         <CardContent>
-          <form action={revokeIntegration}>
+          <ActionForm action={revokeIntegration}>
             <input type="hidden" name="communityId" value={communityId} />
             <Button type="submit" variant="destructive" size="sm">
               Revoke Integration & Delete All Data
             </Button>
-          </form>
+          </ActionForm>
         </CardContent>
       </Card>
     </div>

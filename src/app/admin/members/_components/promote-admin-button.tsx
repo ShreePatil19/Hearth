@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useFormState } from "react-dom";
 import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ export function PromoteAdminButton({
   email: string | undefined;
 }) {
   const [open, setOpen] = useState(false);
+  const [state, formAction] = useFormState(promoteMember, null);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -50,8 +52,8 @@ export function PromoteAdminButton({
           </Button>
           <form
             action={async (formData) => {
-              await promoteMember(formData);
-              setOpen(false);
+              await formAction(formData);
+              if (!state?.error) setOpen(false);
             }}
           >
             <input type="hidden" name="user_id" value={userId} />
@@ -60,6 +62,9 @@ export function PromoteAdminButton({
               Promote
             </Button>
           </form>
+          {state?.error && (
+            <p className="text-xs text-destructive">{state.error}</p>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
