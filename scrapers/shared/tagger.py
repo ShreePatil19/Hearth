@@ -63,7 +63,7 @@ INDUSTRY_KEYWORDS: dict[str, str] = {
 GEO_KEYWORDS: dict[str, str] = {
     r"\baustralia[n]?\b|\bau\b|\banz\b": "AU",
     r"\bnew\s+zealand\b|\bnz\b": "APAC",
-    r"\bunited\s+states\b|\busa\b|\bu\.s\.\b|\bamerican\b": "US",
+    r"\bunited\s+states\b|\busa\b|\bu\.s\.\b|\bamerican\b|\bus\b": "US",
     r"\bunited\s+kingdom\b|\buk\b|\bbritish\b": "UK",
     r"\beurope\b|\beu\b|\beuropean\b": "EU",
     r"\basia.pacific\b|\bapac\b|\bsoutheast\s+asia\b": "APAC",
@@ -190,6 +190,54 @@ def _parse_amounts(text: str) -> tuple[int | None, int | None, str]:
     if len(amounts) == 1:
         return amounts[0], amounts[0], currency
     return amounts[0], amounts[-1], currency
+
+
+def _parse_type(text: str) -> str:
+    for pattern, value in TYPE_KEYWORDS.items():
+        if re.search(pattern, text, re.IGNORECASE):
+            return value
+    return "grant"
+
+
+def _parse_stage(text: str) -> list[str]:
+    found = list(dict.fromkeys(
+        value for pattern, value in STAGE_KEYWORDS.items()
+        if re.search(pattern, text, re.IGNORECASE)
+    ))
+    return found or ["any"]
+
+
+def _parse_industry(text: str) -> list[str]:
+    found = list(dict.fromkeys(
+        value for pattern, value in INDUSTRY_KEYWORDS.items()
+        if re.search(pattern, text, re.IGNORECASE)
+    ))
+    return found or ["any"]
+
+
+def _parse_geo(text: str) -> list[str]:
+    found = list(dict.fromkeys(
+        value for pattern, value in GEO_KEYWORDS.items()
+        if re.search(pattern, text, re.IGNORECASE)
+    ))
+    return found or ["Global"]
+
+
+def _parse_women_focused(text: str) -> bool:
+    if any(re.search(p, text, re.IGNORECASE) for p in WOMEN_NEGATIVE):
+        return False
+    if re.search(WOMEN_POSITIVE, text, re.IGNORECASE):
+        return True
+    return True  # default: assume open to women unless explicitly excluded
+
+
+def _parse_eligibility(text: str) -> str | None:
+    sentences = re.split(r"(?<=[.!?])\s+|\n", text)
+    for sentence in sentences:
+        lower = sentence.lower()
+        if any(signal in lower for signal in ELIGIBILITY_SIGNALS):
+            return sentence.strip()[:500] or None
+    return None
 
 
 def tag_opportunity(raw_text: str, name: str, defaults: dict | None = None) -> TaggedFields | None:
