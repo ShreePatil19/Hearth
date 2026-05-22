@@ -6,7 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const redirectTo = (formData.get("redirect") as string) || "/dashboard";
+  const raw = (formData.get("redirect") as string) || "/dashboard";
+  const redirectTo =
+    raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
 
   if (!email || !password) {
     redirect("/auth/login?error=Email and password are required");

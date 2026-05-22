@@ -14,7 +14,9 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; message?: string; redirect?: string }>;
 }) {
   const params = await searchParams;
-  const redirectTo = params.redirect || "/dashboard";
+  const raw = params.redirect || "/dashboard";
+  const redirectTo =
+    raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
 
   return (
     <Card>
