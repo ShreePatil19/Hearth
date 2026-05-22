@@ -37,3 +37,10 @@ export const GEOS = [
   { value: "APAC", label: "Asia-Pacific" },
   { value: "Global", label: "Global" },
 ] as const;
+
+export const APPLICATION_CYCLES = [
+  { value: "rolling", label: "Rolling / Anytime" },
+  { value: "cohort", label: "Cohort / Intake" },
+  { value: "annual", label: "Annual" },
+  { value: "ongoing", label: "Ongoing" },
+] as const;

@@ -4,6 +4,9 @@ export interface FilterState {
   industry: string[];
   geo: string[];
   aussieOnly: boolean;
+  equityFree: boolean;
+  impactFocus: boolean;
+  applicationCycle: string[];
 }
 
 export function parseFilters(
@@ -21,6 +24,9 @@ export function parseFilters(
     industry: toArray(searchParams.industry),
     geo: toArray(searchParams.geo),
     aussieOnly: searchParams.aussie === "true",
+    equityFree: searchParams.equity === "true",
+    impactFocus: searchParams.impact === "true",
+    applicationCycle: toArray(searchParams.cycle),
   };
 }
 
@@ -31,5 +37,8 @@ export function filtersToParams(filters: FilterState): URLSearchParams {
   if (filters.industry.length) params.set("industry", filters.industry.join(","));
   if (filters.geo.length) params.set("geo", filters.geo.join(","));
   if (filters.aussieOnly) params.set("aussie", "true");
+  if (filters.equityFree) params.set("equity", "true");
+  if (filters.impactFocus) params.set("impact", "true");
+  if (filters.applicationCycle.length) params.set("cycle", filters.applicationCycle.join(","));
   return params;
 }

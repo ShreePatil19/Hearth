@@ -42,6 +42,15 @@ export default async function OpportunitiesPage({
     if (filters.aussieOnly) {
       query = query.contains("geo", ["AU"]);
     }
+    if (filters.equityFree) {
+      query = query.eq("equity_free", true);
+    }
+    if (filters.impactFocus) {
+      query = query.eq("impact_focus", true);
+    }
+    if (filters.applicationCycle.length) {
+      query = query.in("application_cycle", filters.applicationCycle);
+    }
 
     const { data: opportunities } = await query;
     opps = (opportunities ?? []) as Opportunity[];

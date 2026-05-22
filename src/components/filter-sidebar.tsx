@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useCallback } from "react";
-import { Filter, X, MapPin } from "lucide-react";
+import { Filter, X, MapPin, Sparkles, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { OPPORTUNITY_TYPES, STAGES, INDUSTRIES, GEOS } from "@/lib/constants";
+import { OPPORTUNITY_TYPES, STAGES, INDUSTRIES, GEOS, APPLICATION_CYCLES } from "@/lib/constants";
 
 function FilterGroup({
   title,
@@ -71,6 +71,8 @@ function FilterControls() {
   );
 
   const aussieOnly = searchParams.get("aussie") === "true";
+  const equityFree = searchParams.get("equity") === "true";
+  const impactFocus = searchParams.get("impact") === "true";
 
   const updateFilter = useCallback(
     (key: string, value: string, checked: boolean) => {
@@ -104,6 +106,26 @@ function FilterControls() {
     }
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname, aussieOnly]);
+
+  const toggleEquity = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (equityFree) {
+      params.delete("equity");
+    } else {
+      params.set("equity", "true");
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [searchParams, router, pathname, equityFree]);
+
+  const toggleImpact = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (impactFocus) {
+      params.delete("impact");
+    } else {
+      params.set("impact", "true");
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [searchParams, router, pathname, impactFocus]);
 
   const clearAll = useCallback(() => {
     router.replace(pathname, { scroll: false });
@@ -175,6 +197,44 @@ function FilterControls() {
         paramKey="geo"
         options={GEOS}
         activeValues={getValues("geo")}
+        onToggle={updateFilter}
+      />
+
+      <Separator />
+
+      {/* Equity-free toggle */}
+      <button
+        onClick={toggleEquity}
+        className={`flex w-full items-center gap-2.5 rounded-lg border-2 p-3 text-left transition-colors ${
+          equityFree
+            ? "border-hearth-200 bg-hearth-50 text-hearth-700"
+            : "border-border bg-card hover:border-hearth-200 hover:bg-hearth-50/50"
+        }`}
+      >
+        <Banknote className={`h-4 w-4 ${equityFree ? "text-hearth-500" : "text-muted-foreground"}`} />
+        <span className="text-sm font-semibold">Non-dilutive Only</span>
+      </button>
+
+      {/* Impact focus toggle */}
+      <button
+        onClick={toggleImpact}
+        className={`flex w-full items-center gap-2.5 rounded-lg border-2 p-3 text-left transition-colors ${
+          impactFocus
+            ? "border-hearth-200 bg-hearth-50 text-hearth-700"
+            : "border-border bg-card hover:border-hearth-200 hover:bg-hearth-50/50"
+        }`}
+      >
+        <Sparkles className={`h-4 w-4 ${impactFocus ? "text-hearth-500" : "text-muted-foreground"}`} />
+        <span className="text-sm font-semibold">Impact-Focused Only</span>
+      </button>
+
+      <Separator />
+
+      <FilterGroup
+        title="Application Cycle"
+        paramKey="cycle"
+        options={APPLICATION_CYCLES}
+        activeValues={getValues("cycle")}
         onToggle={updateFilter}
       />
     </div>

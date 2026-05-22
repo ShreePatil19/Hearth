@@ -87,7 +87,7 @@ export default async function OpportunityPage({ params }: PageProps) {
 
             <Separator />
 
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
               <div className="rounded-lg border p-3">
                 <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Amount</h4>
                 <p className="mt-1.5 text-lg font-semibold">
@@ -111,6 +111,13 @@ export default async function OpportunityPage({ params }: PageProps) {
               <div className="rounded-lg border p-3">
                 <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Currency</h4>
                 <p className="mt-1.5 text-lg font-semibold">{opp.currency}</p>
+              </div>
+
+              <div className="rounded-lg border p-3">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Cycle</h4>
+                <p className="mt-1.5 text-lg font-semibold capitalize">
+                  {opp.application_cycle ?? "Ongoing"}
+                </p>
               </div>
             </div>
 
@@ -146,6 +153,44 @@ export default async function OpportunityPage({ params }: PageProps) {
                     </Badge>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Details</h4>
+              <div className="flex flex-wrap gap-1.5">
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${
+                    opp.equity_free
+                      ? "bg-green-50 text-green-700 border-green-200"
+                      : "bg-amber-50 text-amber-700 border-amber-200"
+                  }`}
+                >
+                  {opp.equity_free ? "Non-dilutive" : "Takes equity"}
+                </Badge>
+                {opp.impact_focus && (
+                  <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border-emerald-200">
+                    Impact-focused
+                  </Badge>
+                )}
+                {opp.revenue_required === true && (
+                  <Badge variant="outline" className="text-xs">
+                    Revenue required
+                  </Badge>
+                )}
+                {opp.revenue_required === false && (
+                  <Badge variant="outline" className="text-xs">
+                    Pre-revenue OK
+                  </Badge>
+                )}
+                {opp.support_types
+                  ?.filter((s: string) => s !== "funding")
+                  .map((s: string) => (
+                    <Badge key={s} variant="outline" className="text-xs capitalize">
+                      {s}
+                    </Badge>
+                  ))}
               </div>
             </div>
 
