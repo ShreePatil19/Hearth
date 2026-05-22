@@ -6,6 +6,8 @@ OpportunityType = Literal["grant", "accelerator", "pitch_competition", "fund", "
 Stage = Literal["idea", "pre_seed", "seed", "series_a", "growth", "any"]
 Industry = Literal["tech", "health", "climate", "fintech", "edtech", "agritech", "consumer", "deep_tech", "social", "any"]
 Geo = Literal["AU", "US", "UK", "EU", "Global", "APAC"]
+SupportType = Literal["funding", "mentorship", "network", "loan", "education", "workspace"]
+ApplicationCycle = Literal["rolling", "annual", "cohort", "ongoing"]
 
 
 class TaggedFields(BaseModel):
@@ -18,8 +20,13 @@ class TaggedFields(BaseModel):
     amount_min: int | None = None
     amount_max: int | None = None
     currency: str = "AUD"
-    deadline: str | None = None  # ISO date string
+    deadline: str | None = None
     women_focused: bool = True
+    equity_free: bool = True
+    support_types: list[SupportType] = ["funding"]
+    impact_focus: bool = False
+    revenue_required: bool | None = None
+    application_cycle: ApplicationCycle = "ongoing"
 
     @field_validator("description")
     @classmethod
@@ -35,7 +42,7 @@ class TaggedFields(BaseModel):
             return v[:500]
         return v
 
-    @field_validator("stage", "industry", "geo")
+    @field_validator("stage", "industry", "geo", "support_types")
     @classmethod
     def non_empty_list(cls, v: list) -> list:
         if not v:
