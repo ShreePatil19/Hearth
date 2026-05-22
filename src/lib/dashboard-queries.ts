@@ -172,7 +172,7 @@ export async function getNewVsReturning(
     .eq("community_id", communityId)
     .lt("ts", since);
 
-  const beforeIds = allTimeBefore?.map((u) => u.hashed_user_id) || [];
+  const beforeIds = new Set(allTimeBefore?.map((u) => u.hashed_user_id));
 
   // Users in range
   const { data: rangeUsers } = await supabase
@@ -181,22 +181,13 @@ export async function getNewVsReturning(
     .eq("community_id", communityId)
     .gte("ts", since);
 
-  // Deduplicate range users
-  const rangeIds: string[] = [];
-  for (const u of rangeUsers || []) {
-    if (!rangeIds.includes(u.hashed_user_id)) rangeIds.push(u.hashed_user_id);
-  }
+  const rangeIds = new Set(rangeUsers?.map((u) => u.hashed_user_id));
 
-  let newUsers = 0;
   let returning = 0;
-
-  for (const userId of rangeIds) {
-    if (beforeIds.includes(userId)) {
-      returning++;
-    } else {
-      newUsers++;
-    }
-  }
+  rangeIds.forEach((userId) => {
+    if (beforeIds.has(userId)) returning++;
+  });
+  const newUsers = rangeIds.size - returning;
 
   return { new: newUsers, returning };
 }
@@ -238,10 +229,7 @@ export async function getLurkerRatio(
     .eq("community_id", communityId)
     .gte("ts", since);
 
-  const uniquePosters: string[] = [];
-  for (const u of activeUsers || []) {
-    if (!uniquePosters.includes(u.hashed_user_id)) uniquePosters.push(u.hashed_user_id);
-  }
+  const uniquePosters = new Set(activeUsers?.map((u) => u.hashed_user_id));
 
-  return { totalMembers, activePosters: uniquePosters.length };
+  return { totalMembers, activePosters: uniquePosters.size };
 }
