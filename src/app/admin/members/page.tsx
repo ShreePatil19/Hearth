@@ -81,26 +81,59 @@ function MemberRow({
   );
 }
 
+const PROFILE_PAGE_SIZE = 1000;
+const AUTH_PAGE_SIZE = 500;
+const SAFETY_CAP = 10_000;
+
+async function fetchAllProfiles(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<{ profiles: Profile[]; truncated: boolean }> {
+  const profiles: Profile[] = [];
+  for (let from = 0; from < SAFETY_CAP; from += PROFILE_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .select("user_id, status, is_admin, display_name, created_at, approved_at")
+      .order("created_at", { ascending: false })
+      .range(from, from + PROFILE_PAGE_SIZE - 1);
+    if (error || !data || data.length === 0) break;
+    profiles.push(...(data as Profile[]));
+    if (data.length < PROFILE_PAGE_SIZE) {
+      return { profiles, truncated: false };
+    }
+  }
+  return { profiles, truncated: profiles.length >= SAFETY_CAP };
+}
+
+async function fetchAllAuthEmails(
+  adminClient: ReturnType<typeof createAdminClient>,
+): Promise<{ emails: Map<string, string | undefined>; truncated: boolean }> {
+  const emails = new Map<string, string | undefined>();
+  for (let page = 1; page * AUTH_PAGE_SIZE <= SAFETY_CAP; page++) {
+    const { data } = await adminClient.auth.admin.listUsers({
+      page,
+      perPage: AUTH_PAGE_SIZE,
+    });
+    const users = data?.users ?? [];
+    for (const u of users) emails.set(u.id, u.email ?? undefined);
+    if (users.length < AUTH_PAGE_SIZE) {
+      return { emails, truncated: false };
+    }
+  }
+  return { emails, truncated: emails.size >= SAFETY_CAP };
+}
+
 export default async function MembersPage() {
   const supabase = await createClient();
-
-  // Profiles via RLS (admin-only sees all)
-  const { data: profilesData } = await supabase
-    .from("user_profiles")
-    .select("user_id, status, is_admin, display_name, created_at, approved_at")
-    .order("created_at", { ascending: false });
-
-  const profiles = (profilesData ?? []) as Profile[];
-
-  // Emails via service-role admin client (auth.users isn't queryable via PostgREST otherwise)
   const adminClient = createAdminClient();
-  const { data: usersResp } = await adminClient.auth.admin.listUsers({
-    page: 1,
-    perPage: 200,
-  });
-  const emailById = new Map(
-    (usersResp?.users ?? []).map((u) => [u.id, u.email ?? undefined])
-  );
+
+  const [{ profiles, truncated: profilesTruncated }, { emails: emailById, truncated: emailsTruncated }] =
+    await Promise.all([fetchAllProfiles(supabase), fetchAllAuthEmails(adminClient)]);
+
+  if (profilesTruncated || emailsTruncated) {
+    console.warn(
+      `[members] hit ${SAFETY_CAP}-row safety cap (profiles=${profilesTruncated}, emails=${emailsTruncated}) — switch to keyset paging before this becomes load-bearing`,
+    );
+  }
 
   const pending = profiles.filter((p) => p.status === "pending");
   const approved = profiles.filter((p) => p.status === "approved");
