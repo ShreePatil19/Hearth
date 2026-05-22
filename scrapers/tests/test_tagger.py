@@ -110,3 +110,69 @@ def test_parse_eligibility_finds_sentence():
 def test_parse_eligibility_none_when_no_signal():
     from shared.tagger import _parse_eligibility
     assert _parse_eligibility("Great opportunity. Apply now. Deadline soon.") is None
+
+
+def test_parse_equity_free_grant_language():
+    from shared.tagger import _parse_equity_free
+    assert _parse_equity_free("This is a non-dilutive grant for startups") is True
+
+def test_parse_equity_free_equity_taken():
+    from shared.tagger import _parse_equity_free
+    assert _parse_equity_free("We take an equity stake in your company") is False
+
+def test_parse_equity_free_default_true():
+    from shared.tagger import _parse_equity_free
+    assert _parse_equity_free("Apply for funding support today") is True
+
+def test_parse_support_types_always_includes_funding():
+    from shared.tagger import _parse_support_types
+    result = _parse_support_types("No keywords here at all")
+    assert "funding" in result
+
+def test_parse_support_types_multiple():
+    from shared.tagger import _parse_support_types
+    result = _parse_support_types("Mentorship, workshops, and coworking space included")
+    assert "mentorship" in result
+    assert "education" in result
+    assert "workspace" in result
+    assert "funding" in result
+
+def test_parse_impact_focus_true():
+    from shared.tagger import _parse_impact_focus
+    assert _parse_impact_focus("Targeting ventures with clear social impact mandate") is True
+
+def test_parse_impact_focus_sdg():
+    from shared.tagger import _parse_impact_focus
+    assert _parse_impact_focus("Must address UN SDG goals") is True
+
+def test_parse_impact_focus_false():
+    from shared.tagger import _parse_impact_focus
+    assert _parse_impact_focus("Early stage tech startups welcome") is False
+
+def test_parse_revenue_required_true():
+    from shared.tagger import _parse_revenue_required
+    assert _parse_revenue_required("Must be a revenue-generating business with existing customers") is True
+
+def test_parse_revenue_required_false():
+    from shared.tagger import _parse_revenue_required
+    assert _parse_revenue_required("Open to pre-revenue idea stage founders") is False
+
+def test_parse_revenue_required_none():
+    from shared.tagger import _parse_revenue_required
+    assert _parse_revenue_required("Great funding opportunity for startups") is None
+
+def test_parse_application_cycle_rolling():
+    from shared.tagger import _parse_application_cycle
+    assert _parse_application_cycle("Rolling applications accepted year-round") == "rolling"
+
+def test_parse_application_cycle_cohort():
+    from shared.tagger import _parse_application_cycle
+    assert _parse_application_cycle("Join our next cohort starting in March") == "cohort"
+
+def test_parse_application_cycle_annual():
+    from shared.tagger import _parse_application_cycle
+    assert _parse_application_cycle("Annual award ceremony held every year") == "annual"
+
+def test_parse_application_cycle_default():
+    from shared.tagger import _parse_application_cycle
+    assert _parse_application_cycle("Apply for funding") == "ongoing"

@@ -95,7 +95,7 @@ SUPPORT_KEYWORDS: dict[str, str] = {
     r"\bmentor(?:ship|ing|s)?\b|\bcoach(?:ing)?\b": "mentorship",
     r"\bnetwork(?:ing)?\b|\bcommunity\b|\bconnect(?:ions?)?\b": "network",
     r"\bloan\b|\brepayable\b|\bzero.interest\b": "loan",
-    r"\bworkshop\b|\btraining\b|\bcurriculum\b|\beducation\s+program": "education",
+    r"\bworkshops?\b|\btraining\b|\bcurriculum\b|\beducation\s+program": "education",
     r"\bworkspace\b|\bcoworking\b|\boffice\s+space\b": "workspace",
 }
 
@@ -238,6 +238,41 @@ def _parse_eligibility(text: str) -> str | None:
         if any(signal in lower for signal in ELIGIBILITY_SIGNALS):
             return sentence.strip()[:500] or None
     return None
+
+
+def _parse_equity_free(text: str) -> bool:
+    if any(re.search(p, text, re.IGNORECASE) for p in EQUITY_POSITIVE):
+        return True
+    if any(re.search(p, text, re.IGNORECASE) for p in EQUITY_NEGATIVE):
+        return False
+    return True
+
+
+def _parse_support_types(text: str) -> list[str]:
+    found = ["funding"]
+    for pattern, value in SUPPORT_KEYWORDS.items():
+        if re.search(pattern, text, re.IGNORECASE) and value not in found:
+            found.append(value)
+    return found
+
+
+def _parse_impact_focus(text: str) -> bool:
+    return any(re.search(p, text, re.IGNORECASE) for p in IMPACT_KEYWORDS)
+
+
+def _parse_revenue_required(text: str) -> bool | None:
+    if any(re.search(p, text, re.IGNORECASE) for p in REVENUE_POSITIVE):
+        return True
+    if any(re.search(p, text, re.IGNORECASE) for p in REVENUE_NEGATIVE):
+        return False
+    return None
+
+
+def _parse_application_cycle(text: str) -> str:
+    for pattern, value in CYCLE_KEYWORDS.items():
+        if re.search(pattern, text, re.IGNORECASE):
+            return value
+    return "ongoing"
 
 
 def tag_opportunity(raw_text: str, name: str, defaults: dict | None = None) -> TaggedFields | None:
