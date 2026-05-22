@@ -21,6 +21,11 @@ DEFAULTS = {
     "geo": ["US", "Global"],
     "currency": "USD",
     "women_focused": True,
+    "equity_free": True,
+    "support_types": ["funding"],
+    "impact_focus": False,
+    "revenue_required": None,
+    "application_cycle": "rolling",
 }
 
 

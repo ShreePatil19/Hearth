@@ -127,6 +127,11 @@ def scrape() -> list[dict]:
             "amount_max": amount_max,
             "deadline": deadline,
             "women_focused": is_women_focused,
+            "equity_free": True,
+            "support_types": ["funding"],
+            "impact_focus": False,
+            "revenue_required": None,
+            "application_cycle": "ongoing",
         }
 
         opportunities.append({

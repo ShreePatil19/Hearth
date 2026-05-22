@@ -23,6 +23,11 @@ PROGRAMS = [
             "amount_max": 120000,
             "currency": "USD",
             "women_focused": False,
+            "equity_free": False,
+            "support_types": ["funding", "mentorship", "network", "education"],
+            "impact_focus": False,
+            "revenue_required": False,
+            "application_cycle": "cohort",
         },
     },
     {
@@ -37,6 +42,11 @@ PROGRAMS = [
             "geo": ["US", "Global"],
             "currency": "USD",
             "women_focused": True,
+            "equity_free": True,
+            "support_types": ["mentorship", "network", "education"],
+            "impact_focus": False,
+            "revenue_required": False,
+            "application_cycle": "cohort",
         },
     },
 ]

@@ -17,6 +17,11 @@ DEFAULTS = {
     "geo": ["AU"],
     "currency": "AUD",
     "women_focused": True,
+    "equity_free": True,
+    "support_types": ["funding", "mentorship", "network"],
+    "impact_focus": False,
+    "revenue_required": None,
+    "application_cycle": "cohort",
 }
 
 

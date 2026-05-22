@@ -21,6 +21,11 @@ PAGES = [
             "geo": ["AU", "US", "UK", "Global"],
             "currency": "USD",
             "women_focused": True,
+            "equity_free": True,
+            "support_types": ["loan", "mentorship", "network"],
+            "impact_focus": True,
+            "revenue_required": True,
+            "application_cycle": "rolling",
         },
     },
     {
@@ -37,6 +42,11 @@ PAGES = [
             "amount_max": 100000,
             "currency": "USD",
             "women_focused": True,
+            "equity_free": True,
+            "support_types": ["funding", "network", "mentorship"],
+            "impact_focus": True,
+            "revenue_required": None,
+            "application_cycle": "rolling",
         },
     },
 ]

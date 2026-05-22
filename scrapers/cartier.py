@@ -24,6 +24,11 @@ PAGES = [
             "amount_max": 100000,
             "currency": "USD",
             "women_focused": True,
+            "equity_free": True,
+            "support_types": ["funding", "mentorship", "network"],
+            "impact_focus": True,
+            "revenue_required": True,
+            "application_cycle": "annual",
         },
     },
     {
@@ -40,6 +45,11 @@ PAGES = [
             "amount_max": 100000,
             "currency": "USD",
             "women_focused": True,
+            "equity_free": True,
+            "support_types": ["funding", "mentorship"],
+            "impact_focus": True,
+            "revenue_required": None,
+            "application_cycle": "annual",
         },
     },
 ]
