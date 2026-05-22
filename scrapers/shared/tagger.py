@@ -276,19 +276,11 @@ def _parse_application_cycle(text: str) -> str:
 
 
 def tag_opportunity(raw_text: str, name: str, defaults: dict | None = None) -> TaggedFields | None:
-    """Extract structured metadata using regex + source-specific defaults.
-
-    Args:
-        raw_text: The scraped page text
-        name: Opportunity name
-        defaults: Source-specific overrides (type, geo, stage, industry, description, etc.)
-    """
+    """Extract structured metadata using regex + source-specific defaults."""
     defaults = defaults or {}
 
     deadline = defaults.get("deadline") or _parse_date(raw_text)
     amount_min, amount_max, currency = _parse_amounts(raw_text)
-
-    # Allow defaults to override extracted amounts
     if "amount_min" in defaults:
         amount_min = defaults["amount_min"]
     if "amount_max" in defaults:
@@ -296,21 +288,39 @@ def tag_opportunity(raw_text: str, name: str, defaults: dict | None = None) -> T
     if "currency" in defaults:
         currency = defaults["currency"]
 
+    opp_type    = defaults.get("type")                or _parse_type(raw_text)
+    stage       = defaults.get("stage")               or _parse_stage(raw_text)
+    industry    = defaults.get("industry")            or _parse_industry(raw_text)
+    geo         = defaults.get("geo")                 or _parse_geo(raw_text)
+    women       = defaults.get("women_focused",          _parse_women_focused(raw_text))
+    eligibility = defaults.get("eligibility_summary") or _parse_eligibility(raw_text)
+    description = defaults.get("description")         or f"Funding opportunity: {name}"
+
+    equity_free   = defaults.get("equity_free",         _parse_equity_free(raw_text))
+    support_types = defaults.get("support_types")     or _parse_support_types(raw_text)
+    impact_focus  = defaults.get("impact_focus",        _parse_impact_focus(raw_text))
+    rev_required  = defaults.get("revenue_required",    _parse_revenue_required(raw_text))
+    cycle         = defaults.get("application_cycle")  or _parse_application_cycle(raw_text)
+
     try:
-        tagged = TaggedFields(
-            type=defaults.get("type", "grant"),
-            description=defaults.get("description", f"Funding opportunity: {name}"),
-            eligibility_summary=defaults.get("eligibility_summary"),
-            stage=defaults.get("stage", ["any"]),
-            industry=defaults.get("industry", ["any"]),
-            geo=defaults.get("geo", ["Global"]),
+        return TaggedFields(
+            type=opp_type,
+            description=description,
+            eligibility_summary=eligibility,
+            stage=stage,
+            industry=industry,
+            geo=geo,
             amount_min=amount_min,
             amount_max=amount_max,
             currency=currency,
             deadline=deadline,
-            women_focused=defaults.get("women_focused", True),
+            women_focused=women,
+            equity_free=equity_free,
+            support_types=support_types,
+            impact_focus=impact_focus,
+            revenue_required=rev_required,
+            application_cycle=cycle,
         )
-        return tagged
     except Exception as e:
         print(f"  [tagger] Validation error for {name}: {e}")
         return None

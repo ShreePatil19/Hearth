@@ -176,3 +176,82 @@ def test_parse_application_cycle_annual():
 def test_parse_application_cycle_default():
     from shared.tagger import _parse_application_cycle
     assert _parse_application_cycle("Apply for funding") == "ongoing"
+
+
+def test_golden_accelerator_with_equity():
+    from shared.tagger import tag_opportunity
+    result = tag_opportunity(
+        raw_text=(
+            "Techstars runs a 3-month cohort accelerator program for pre-seed Australian fintech startups. "
+            "We take an equity stake of 6%. Mentorship and networking included. "
+            "Join our next intake and scale your startup."
+        ),
+        name="Techstars AU",
+    )
+    assert result is not None
+    assert result.type == "accelerator"
+    assert result.equity_free is False
+    assert result.application_cycle == "cohort"
+    assert "mentorship" in result.support_types
+    assert "network" in result.support_types
+    assert "funding" in result.support_types
+    assert "fintech" in result.industry
+    assert "pre_seed" in result.stage
+    assert "AU" in result.geo
+
+
+def test_golden_impact_grant_rolling():
+    from shared.tagger import tag_opportunity
+    result = tag_opportunity(
+        raw_text=(
+            "Zero-interest loan for women-led social impact ventures working on UN SDG goals. "
+            "Rolling applications accepted year-round. Must be revenue-generating. "
+            "Open to businesses in Australia, US, and UK."
+        ),
+        name="Coralus Venture",
+    )
+    assert result is not None
+    assert result.equity_free is True
+    assert result.impact_focus is True
+    assert result.women_focused is True
+    assert result.application_cycle == "rolling"
+    assert result.revenue_required is True
+    assert "loan" in result.support_types
+    assert "AU" in result.geo
+    assert "US" in result.geo
+    assert "UK" in result.geo
+
+
+def test_golden_no_signals_uses_defaults():
+    from shared.tagger import tag_opportunity
+    result = tag_opportunity(
+        raw_text="Some text with absolutely no classifiable signals whatsoever.",
+        name="Mystery Grant",
+    )
+    assert result is not None
+    assert result.type == "grant"
+    assert result.stage == ["any"]
+    assert result.industry == ["any"]
+    assert result.geo == ["Global"]
+    assert result.equity_free is True
+    assert result.impact_focus is False
+    assert result.revenue_required is None
+    assert result.application_cycle == "ongoing"
+    assert result.women_focused is True
+
+
+def test_defaults_override_auto_detection():
+    from shared.tagger import tag_opportunity
+    result = tag_opportunity(
+        raw_text="This is an accelerator with equity stake for US tech startups",
+        name="Override Test",
+        defaults={
+            "type": "grant",
+            "equity_free": True,
+            "geo": ["AU"],
+        },
+    )
+    assert result is not None
+    assert result.type == "grant"       # default wins over "accelerator"
+    assert result.equity_free is True   # default wins over False
+    assert result.geo == ["AU"]         # default wins over ["US"]
