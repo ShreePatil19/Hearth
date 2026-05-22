@@ -1,9 +1,18 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit, authLimiter } from "@/lib/rate-limit";
 
 export async function signup(formData: FormData) {
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+  const { success } = await rateLimit(ip, authLimiter);
+  if (!success) {
+    redirect("/auth/signup?error=Too many signup attempts. Please wait a minute.");
+  }
+
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
