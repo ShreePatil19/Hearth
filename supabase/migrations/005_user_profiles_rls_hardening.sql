@@ -22,6 +22,8 @@ CREATE POLICY "user_profiles_admin_update" ON public.user_profiles FOR UPDATE
 -- only checks row ownership.
 -- ============================================================
 
+DROP POLICY IF EXISTS "user_profiles_self_update" ON public.user_profiles;
+
 CREATE POLICY "user_profiles_self_update" ON public.user_profiles FOR UPDATE
   USING (user_id = (SELECT auth.uid()))
   WITH CHECK (user_id = (SELECT auth.uid()));
