@@ -31,6 +31,97 @@ MONTH_MAP = {
     "oct": 10, "october": 10, "nov": 11, "november": 11, "dec": 12, "december": 12,
 }
 
+# --- Field classification keyword maps ---
+
+TYPE_KEYWORDS: dict[str, str] = {
+    r"\baccelerator\b": "accelerator",
+    r"\bfellowship\b": "fellowship",
+    r"\bpitch\s+competition\b|\bpitching\s+competition\b": "pitch_competition",
+    r"\bfund\b|\bvc\b|\bventure\s+capital\b|\bangel\s+invest": "fund",
+}
+
+STAGE_KEYWORDS: dict[str, str] = {
+    r"\bidea\b|\bideation\b|\bconcept\s+stage\b": "idea",
+    r"\bpre.?seed\b|\bpre.revenue\b": "pre_seed",
+    r"\bseed\b|\bearly.stage\b|\bstartup\b": "seed",
+    r"\bseries\s+a\b": "series_a",
+    r"\bgrowth\b|\bscale.?up\b|\bscaling\b": "growth",
+}
+
+INDUSTRY_KEYWORDS: dict[str, str] = {
+    r"\bfintech\b|\bfinancial\s+tech": "fintech",
+    r"\bhealth(?:care|tech)?\b|\bmedtech\b|\bbiotech\b": "health",
+    r"\bclimate\b|\bcleantech\b|\bsustainab": "climate",
+    r"\bedtech\b|\beducation\s+tech": "edtech",
+    r"\bagritech\b|\bagriculture\b|\bfarming\b": "agritech",
+    r"\bconsumer\b|\bretail\b|\be.commerce\b": "consumer",
+    r"\bdeep.tech\b|\bdeeptech\b|\bai\b|\bmachine\s+learning\b": "deep_tech",
+    r"\bsocial\s+enterprise\b|\bsocial\s+impact\b|\bnot.for.profit\b|\bnfp\b": "social",
+    r"\btech\b|\btechnology\b|\bsoftware\b|\bsaas\b": "tech",
+}
+
+GEO_KEYWORDS: dict[str, str] = {
+    r"\baustralia[n]?\b|\bau\b|\banz\b": "AU",
+    r"\bnew\s+zealand\b|\bnz\b": "APAC",
+    r"\bunited\s+states\b|\busa\b|\bu\.s\.\b|\bamerican\b": "US",
+    r"\bunited\s+kingdom\b|\buk\b|\bbritish\b": "UK",
+    r"\beurope\b|\beu\b|\beuropean\b": "EU",
+    r"\basia.pacific\b|\bapac\b|\bsoutheast\s+asia\b": "APAC",
+}
+
+WOMEN_POSITIVE = r"\bwomen\b|\bfemale\b|\bwoman.owned\b|\bwomen.led\b|\bfemale\s+founder"
+WOMEN_NEGATIVE = [
+    r"\bnot\s+limited\s+to\s+women\b",
+    r"\bopen\s+to\s+all\b",
+    r"\bgender.neutral\b",
+    r"\bgender.inclusive\b",
+]
+
+ELIGIBILITY_SIGNALS = [
+    "eligible", "eligibility", "open to", "must be",
+    "requirements", "who can apply", "applicant",
+]
+
+EQUITY_NEGATIVE = [
+    r"\bequity\s+stake\b|\btakes?\s+equity\b|\bdilutive\b",
+    r"\bin\s+exchange\s+for\s+equity\b|\bshareholders?\b",
+]
+EQUITY_POSITIVE = [
+    r"\bnon.dilutive\b", r"\bno\s+equity\b",
+    r"\bzero.interest\s+loan\b", r"\brepayable\s+grant\b",
+]
+
+SUPPORT_KEYWORDS: dict[str, str] = {
+    r"\bmentor(?:ship|ing|s)?\b|\bcoach(?:ing)?\b": "mentorship",
+    r"\bnetwork(?:ing)?\b|\bcommunity\b|\bconnect(?:ions?)?\b": "network",
+    r"\bloan\b|\brepayable\b|\bzero.interest\b": "loan",
+    r"\bworkshop\b|\btraining\b|\bcurriculum\b|\beducation\s+program": "education",
+    r"\bworkspace\b|\bcoworking\b|\boffice\s+space\b": "workspace",
+}
+
+IMPACT_KEYWORDS = [
+    r"\bsocial\s+impact\b|\benvironmental\s+impact\b",
+    r"\bsdg\b|\bsustainable\s+development\s+goal",
+    r"\bpositive\s+impact\b|\bb\s*corp\b|\bbenefit\s+corp",
+    r"\bimpact\s+entrepreneur\b|\bimpact.driven\b",
+]
+
+REVENUE_POSITIVE = [
+    r"\brevenue.generating\b|\brevenue.positive\b",
+    r"\bestablished\s+business\b|\babn\s+required\b|\bacn\s+required\b",
+    r"\bmust\s+have\s+revenue\b|\bexisting\s+customers?\b|\btrading\b",
+]
+REVENUE_NEGATIVE = [
+    r"\bpre.revenue\b|\bno\s+revenue\s+required\b",
+    r"\bidea\s+stage\b|\bconcept\s+stage\b|\bpre.launch\b",
+]
+
+CYCLE_KEYWORDS: dict[str, str] = {
+    r"\brolling\s+applications?\b|\bapply\s+anytime\b|\bopen\s+year.round\b": "rolling",
+    r"\bannual\b|\bonce\s+a\s+year\b|\byearly\b": "annual",
+    r"\bcohort\b|\bbatch\b|\bintake\b|\bprogram\s+cycle\b": "cohort",
+}
+
 
 def _parse_date(text: str) -> str | None:
     """Try to extract the earliest future deadline from text."""
