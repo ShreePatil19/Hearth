@@ -35,7 +35,7 @@ export function OpportunityTable({ data }: OpportunityTableProps) {
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="hover:bg-transparent">
               {headerGroup.headers.map((header) => {
-                const hideOnMobile = (header.column.columnDef.meta as Record<string, boolean> | undefined)?.hideOnMobile;
+                const hideOnMobile = header.column.columnDef.meta?.hideOnMobile;
                 return (
                   <TableHead
                     key={header.id}
@@ -57,7 +57,7 @@ export function OpportunityTable({ data }: OpportunityTableProps) {
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} className="hover:bg-hearth-50/50 transition-colors">
                 {row.getVisibleCells().map((cell) => {
-                  const hideOnMobile = (cell.column.columnDef.meta as Record<string, boolean> | undefined)?.hideOnMobile;
+                  const hideOnMobile = cell.column.columnDef.meta?.hideOnMobile;
                   return (
                     <TableCell
                       key={cell.id}
