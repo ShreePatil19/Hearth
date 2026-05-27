@@ -2,14 +2,15 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loginSchema } from "@/lib/schemas";
+import { firstZodError, formDataToObject } from "@/lib/form-data";
 
 export async function adminLogin(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-
-  if (!email || !password) {
-    redirect("/admin/login?error=Email and password are required");
+  const parsed = loginSchema.safeParse(formDataToObject(formData));
+  if (!parsed.success) {
+    redirect(`/admin/login?error=${encodeURIComponent(firstZodError(parsed.error))}`);
   }
+  const { email, password } = parsed.data;
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -18,8 +19,5 @@ export async function adminLogin(formData: FormData) {
     redirect(`/admin/login?error=${encodeURIComponent(error.message)}`);
   }
 
-  // Middleware will gate /admin and bounce non-admins to /dashboard — no need
-  // to re-check here. Redirect always lands them on /admin, and the middleware
-  // handles auth + status + is_admin checks.
   redirect("/admin");
 }

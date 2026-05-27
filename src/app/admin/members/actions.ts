@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/action-result";
+import { parseFormUUID } from "@/lib/form-data";
 
 type MemberStatus = "pending" | "approved" | "rejected";
 
@@ -52,8 +53,8 @@ export async function approveMember(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const userId = formData.get("user_id") as string;
-  if (!userId) return { error: "Missing user ID." };
+  const userId = parseFormUUID(formData, "user_id");
+  if (!userId) return { error: "Missing or invalid user ID." };
   return setMemberStatus(userId, "approved");
 }
 
@@ -61,8 +62,8 @@ export async function rejectMember(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const userId = formData.get("user_id") as string;
-  if (!userId) return { error: "Missing user ID." };
+  const userId = parseFormUUID(formData, "user_id");
+  if (!userId) return { error: "Missing or invalid user ID." };
   return setMemberStatus(userId, "rejected");
 }
 
@@ -70,8 +71,8 @@ export async function reinstateMember(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const userId = formData.get("user_id") as string;
-  if (!userId) return { error: "Missing user ID." };
+  const userId = parseFormUUID(formData, "user_id");
+  if (!userId) return { error: "Missing or invalid user ID." };
   return setMemberStatus(userId, "pending");
 }
 
@@ -79,8 +80,8 @@ export async function promoteMember(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const userId = formData.get("user_id") as string;
-  if (!userId) return { error: "Missing user ID." };
+  const userId = parseFormUUID(formData, "user_id");
+  if (!userId) return { error: "Missing or invalid user ID." };
 
   const supabase = await createClient();
   const {

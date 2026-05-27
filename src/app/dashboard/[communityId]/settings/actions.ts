@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionResult } from "@/lib/action-result";
+import { parseFormBoolean, parseFormUUID } from "@/lib/form-data";
 
 async function requireOwner(
   communityId: string,
@@ -31,9 +32,12 @@ export async function toggleChannel(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const communityId = formData.get("communityId") as string;
-  const channelId = formData.get("channelId") as string;
-  const optedIn = formData.get("optedIn") === "true";
+  const communityId = parseFormUUID(formData, "communityId");
+  const channelId = parseFormUUID(formData, "channelId");
+  if (!communityId || !channelId) {
+    return { error: "Invalid request: community or channel ID missing." };
+  }
+  const optedIn = parseFormBoolean(formData, "optedIn");
 
   const authError = await requireOwner(communityId);
   if (authError) return authError;
@@ -55,7 +59,8 @@ export async function regenerateShareToken(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const communityId = formData.get("communityId") as string;
+  const communityId = parseFormUUID(formData, "communityId");
+  if (!communityId) return { error: "Invalid request: community ID missing." };
 
   const authError = await requireOwner(communityId);
   if (authError) return authError;
@@ -76,7 +81,8 @@ export async function disableSharing(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const communityId = formData.get("communityId") as string;
+  const communityId = parseFormUUID(formData, "communityId");
+  if (!communityId) return { error: "Invalid request: community ID missing." };
 
   const authError = await requireOwner(communityId);
   if (authError) return authError;
@@ -97,7 +103,8 @@ export async function revokeIntegration(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const communityId = formData.get("communityId") as string;
+  const communityId = parseFormUUID(formData, "communityId");
+  if (!communityId) return { error: "Invalid request: community ID missing." };
 
   const authError = await requireOwner(communityId);
   if (authError) return authError;
