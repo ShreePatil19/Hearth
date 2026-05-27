@@ -102,3 +102,23 @@
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .hearth-gradient {
+    background: linear-gradient(135deg, hsl(var(--orange-400)) 0%, hsl(var(--orange-600)) 50%, hsl(var(--orange-700)) 100%);
+  }
+  .hearth-gradient-subtle {
+    background: linear-gradient(180deg, hsl(var(--orange-50)) 0%, hsl(var(--background)) 100%);
+  }
+  .hearth-glow {
+    box-shadow: 0 0 80px -20px hsl(var(--orange-400) / 0.3);
+  }
+}
+
+@media (forced-colors: active) {
+  .bg-clip-text {
+    -webkit-text-fill-color: unset;
+    color: CanvasText;
+    background: none;
+  }
+}

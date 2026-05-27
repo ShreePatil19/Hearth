@@ -4,11 +4,13 @@ import { Flame } from "lucide-react";
 export function SiteFooter() {
   return (
     <footer className="border-t bg-card">
-      <div className="container py-8">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Flame className="h-4 w-4 text-hearth-500" />
-            <span className="text-sm font-medium">Hearth</span>
+      <div className="container py-10">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md hearth-gradient text-white">
+              <Flame className="h-3.5 w-3.5" aria-hidden="true" />
+            </div>
+            <span className="text-sm font-bold tracking-tight">Hearth</span>
           </div>
           <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
             Hearth is a discovery tool, not legal or financial advice. Always
@@ -16,11 +18,14 @@ export function SiteFooter() {
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground/60">
             <span>Data refreshed daily</span>
-            <span>&middot;</span>
-            <Link href="/privacy" className="hover:text-primary transition-colors">
+            <span className="h-3 w-px bg-border" />
+            <Link
+              href="/privacy"
+              className="transition-colors hover:text-foreground"
+            >
               Privacy
             </Link>
-            <span>&middot;</span>
+            <span className="h-3 w-px bg-border" />
             <span>Built for women founders</span>
           </div>
         </div>
