@@ -10,30 +10,33 @@
     --card-foreground: 20 20% 14%;
     --popover: 0 0% 100%;
     --popover-foreground: 20 20% 14%;
-    --primary: 24 75% 48%;
+    --primary: 18 100% 50%; /* Flame Orange #FF4C00 */
     --primary-foreground: 0 0% 100%;
     --secondary: 30 30% 94%;
     --secondary-foreground: 20 20% 20%;
     --muted: 30 15% 93%;
     --muted-foreground: 20 10% 45%;
-    --accent: 24 60% 94%;
-    --accent-foreground: 24 75% 30%;
+    --accent: 18 100% 96%; /* Flame Orange tint */
+    --accent-foreground: 18 100% 30%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 30 15% 88%;
     --input: 30 15% 88%;
-    --ring: 24 75% 48%;
+    --ring: 18 100% 50%;
     --radius: 0.625rem;
 
-    --orange-50: 33 100% 96%;
-    --orange-100: 34 100% 92%;
-    --orange-200: 32 98% 83%;
-    --orange-300: 29 97% 74%;
-    --orange-400: 27 96% 61%;
-    --orange-500: 25 95% 53%;
-    --orange-600: 21 90% 48%;
-    --orange-700: 17 88% 40%;
-    --orange-900: 15 75% 28%;
+    /* Anchored to the Fishburners brand styleguide primary + secondary
+       palette: Flame Orange #FF4C00 (500), Princeton #FF9500 (300),
+       Safety #FF7700 (400), Rust #843600 (700), Maroon #7E0400 (900). */
+    --orange-50: 20 100% 96%;
+    --orange-100: 22 100% 90%;
+    --orange-200: 25 100% 80%;
+    --orange-300: 35 100% 50%; /* Princeton Orange #FF9500 */
+    --orange-400: 28 100% 50%; /* Safety Orange #FF7700 */
+    --orange-500: 18 100% 50%; /* Flame Orange #FF4C00 (PRIMARY) */
+    --orange-600: 22 100% 38%;
+    --orange-700: 25 100% 26%; /* Rust #843600 */
+    --orange-900: 3 100% 25%;  /* Maroon #7E0400 */
 
     --green-50: 138 76% 97%;
     --green-100: 141 84% 93%;
@@ -52,29 +55,31 @@
     --card-foreground: 32 85% 92%;
     --popover: 15 50% 12%;
     --popover-foreground: 32 85% 92%;
-    --primary: 24 80% 54%;
+    --primary: 18 100% 55%; /* Flame Orange, lifted for dark bg */
     --primary-foreground: 15 52% 7%;
     --secondary: 15 25% 15%;
     --secondary-foreground: 32 60% 85%;
     --muted: 15 20% 14%;
     --muted-foreground: 20 15% 60%;
-    --accent: 24 40% 16%;
-    --accent-foreground: 24 75% 70%;
+    --accent: 18 60% 16%;
+    --accent-foreground: 18 100% 70%;
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
     --border: 20 25% 18%;
     --input: 20 25% 18%;
-    --ring: 24 80% 54%;
+    --ring: 18 100% 55%;
 
-    --orange-50: 24 40% 14%;
-    --orange-100: 24 45% 18%;
-    --orange-200: 24 50% 25%;
-    --orange-300: 24 55% 32%;
-    --orange-400: 24 65% 42%;
-    --orange-500: 24 80% 54%;
-    --orange-600: 24 85% 60%;
-    --orange-700: 24 75% 70%;
-    --orange-900: 24 60% 80%;
+    /* Dark mode: shift toward warmer, lighter tones so Flame Orange
+       still anchors but text-on-dark remains legible. */
+    --orange-50: 18 60% 14%;
+    --orange-100: 18 65% 18%;
+    --orange-200: 18 70% 25%;
+    --orange-300: 28 100% 50%; /* Safety in dark = warm mid-orange */
+    --orange-400: 22 100% 55%;
+    --orange-500: 18 100% 55%; /* Flame, slightly lifted for dark bg */
+    --orange-600: 22 100% 65%;
+    --orange-700: 25 90% 72%;
+    --orange-900: 24 70% 82%;
 
     --green-50: 145 30% 12%;
     --green-100: 145 35% 16%;

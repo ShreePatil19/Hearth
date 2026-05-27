@@ -83,7 +83,7 @@ export default async function LandingPage() {
           <div className="absolute -left-32 bottom-0 h-64 w-64 rounded-full bg-hearth-100/40 blur-3xl" aria-hidden="true" />
           <div className="container relative py-20 md:py-32">
             <div className="mx-auto max-w-3xl space-y-8 text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-hearth-200 bg-card/80 px-4 py-1.5 text-xs font-semibold tracking-wide text-hearth-700 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 rounded-full border border-hearth-200 bg-card/80 px-4 py-1.5 font-display text-xs uppercase tracking-[0.18em] text-hearth-700 backdrop-blur-sm">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                 Invite-only for Fishburners community
               </div>
@@ -145,19 +145,19 @@ export default async function LandingPage() {
                 icon={<Search className="h-5 w-5" />}
                 title="Filterable funding radar"
                 description="Browse grants, accelerators, pitch comps, and funds. Filter by stage, industry, geography. Search by anything."
-                accent="from-hearth-400 to-hearth-600"
+                tone="orange"
               />
               <FeatureCard
                 icon={<RefreshCw className="h-5 w-5" />}
                 title="Refreshed daily"
                 description="Scrapers run every morning to pull new opportunities and remove past deadlines. No more dead links."
-                accent="from-hearth-500 to-hearth-700"
+                tone="dark"
               />
               <FeatureCard
                 icon={<Users className="h-5 w-5" />}
                 title="Community analytics"
                 description="If you run a women-founder Slack community, plug it in for privacy-first engagement insights."
-                accent="from-hearth-600 to-hearth-900"
+                tone="neutral"
               />
             </div>
           </div>
@@ -167,7 +167,7 @@ export default async function LandingPage() {
         <section className="border-t bg-card">
           <div className="container py-20 md:py-24">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="inline-flex items-center gap-2 rounded-full bg-hearth-100 px-4 py-1.5 text-xs font-semibold tracking-wide text-hearth-700">
+              <div className="inline-flex items-center gap-2 rounded-full bg-hearth-100 px-4 py-1.5 font-display text-xs uppercase tracking-[0.18em] text-hearth-700">
                 <Shield className="h-3.5 w-3.5" aria-hidden="true" />
                 Privacy-first analytics
               </div>
@@ -272,21 +272,29 @@ export default async function LandingPage() {
   );
 }
 
+type FeatureTone = "orange" | "dark" | "neutral";
+
+const TONE_CLASSES: Record<FeatureTone, string> = {
+  orange: "bg-gradient-to-br from-hearth-400 to-hearth-500 text-white shadow-sm",
+  dark: "bg-foreground text-background",
+  neutral: "border border-border bg-muted text-foreground",
+};
+
 function FeatureCard({
   icon,
   title,
   description,
-  accent,
+  tone,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
-  accent: string;
+  tone: FeatureTone;
 }) {
   return (
     <div className="group relative rounded-xl border bg-card p-6 transition-all duration-200 hover:shadow-md">
       <div
-        className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-sm`}
+        className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl ${TONE_CLASSES[tone]}`}
       >
         {icon}
       </div>
