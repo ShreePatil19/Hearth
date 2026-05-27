@@ -46,3 +46,9 @@ __pycache__/
 *.pyc
 
 .vercel
+
+# Fishburners brand styleguide - keep the source archive and the
+# extracted raw assets out of git. The optimised, web-ready versions
+# that ship to users live under public/images/brand/ and ARE tracked.
+/brand-assets/
+/FISHBURNERS*.zip
