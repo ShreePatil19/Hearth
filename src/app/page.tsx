@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
@@ -24,6 +25,21 @@ export const metadata = {
   description:
     "Curated grants, accelerators, pitch competitions, and funds for women founders. Invite-only access.",
 };
+
+const COMMUNITY_PHOTOS: ReadonlyArray<{ src: string; alt: string }> = [
+  {
+    src: "/images/brand/founder-hero.jpg",
+    alt: "Woman founder reviewing notes in a bright workspace.",
+  },
+  {
+    src: "/images/brand/community-collaborate.jpg",
+    alt: "Two founders collaborating around a laptop.",
+  },
+  {
+    src: "/images/brand/founder-workspace.jpg",
+    alt: "Founder working from a sunlit co-working space.",
+  },
+] as const;
 
 export default async function LandingPage() {
   const supabase = await createClient();
@@ -124,6 +140,33 @@ export default async function LandingPage() {
                   </span>
                 </div>
               )}
+            </div>
+          </div>
+        </section>
+
+        {/* Community photo band */}
+        <section className="border-b bg-card/40" aria-label="Built for women founders across Australia">
+          <div className="container py-12 md:py-16">
+            <div className="mx-auto max-w-5xl">
+              <p className="mb-6 text-center font-display text-xs uppercase tracking-[0.18em] text-muted-foreground md:mb-8">
+                Built for women founders across Australia
+              </p>
+              <div className="grid gap-3 sm:grid-cols-3 md:gap-4">
+                {COMMUNITY_PHOTOS.map((photo) => (
+                  <div
+                    key={photo.src}
+                    className="relative aspect-[4/5] overflow-hidden rounded-xl border bg-muted"
+                  >
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt}
+                      fill
+                      sizes="(min-width: 768px) 320px, (min-width: 640px) 33vw, 100vw"
+                      className="object-cover transition-transform duration-700 hover:scale-105"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
