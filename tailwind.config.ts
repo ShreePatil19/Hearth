@@ -17,7 +17,8 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-jakarta)", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-anton)", "var(--font-inter)", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Anton, Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
+// Fishburners brand styleguide: Inter for body + functional text,
+// Anton for uppercase headlines only.
+const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-jakarta",
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const anton = Anton({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-anton",
   display: "swap",
 });
 
@@ -24,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${jakarta.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${anton.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Analytics />
