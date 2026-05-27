@@ -80,7 +80,7 @@ export function SiteHeaderNav({
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between gap-4">
         <Link href={logoHref} className="flex shrink-0 items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg hearth-gradient text-white">
             <Flame className="h-5 w-5" />
           </div>
           <div className="hidden sm:flex sm:flex-col">
@@ -179,7 +179,7 @@ export function SiteHeaderNav({
               <SheetContent side="right" className="w-[85vw] max-w-xs p-0">
                 <div className="flex h-full flex-col">
                   <div className="flex h-16 items-center gap-2.5 border-b px-5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 text-white">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg hearth-gradient text-white">
                       <Flame className="h-4 w-4" />
                     </div>
                     <span className="text-sm font-bold">Hearth</span>
