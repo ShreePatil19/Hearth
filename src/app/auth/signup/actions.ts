@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit, authLimiter } from "@/lib/rate-limit";
+import { signupSchema } from "@/lib/schemas";
+import { firstZodError, formDataToObject } from "@/lib/form-data";
 
 export async function signup(formData: FormData) {
   const headersList = await headers();
@@ -13,21 +15,11 @@ export async function signup(formData: FormData) {
     redirect("/auth/signup?error=Too many signup attempts. Please wait a minute.");
   }
 
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (!email || !password) {
-    redirect("/auth/signup?error=Email and password are required");
+  const parsed = signupSchema.safeParse(formDataToObject(formData));
+  if (!parsed.success) {
+    redirect(`/auth/signup?error=${encodeURIComponent(firstZodError(parsed.error))}`);
   }
-
-  if (password !== confirmPassword) {
-    redirect("/auth/signup?error=Passwords do not match");
-  }
-
-  if (password.length < 6) {
-    redirect("/auth/signup?error=Password must be at least 6 characters");
-  }
+  const { email, password } = parsed.data;
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
