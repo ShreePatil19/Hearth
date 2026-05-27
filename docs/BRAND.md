@@ -91,6 +91,19 @@ Banned patterns:
 
 Currently the codebase does **not** ship the Fishburners isotype or wordmark. They should be added when we introduce explicit "Powered by Fishburners" co-branding.
 
+## Photography
+
+Three placeholder community photos live in `public/images/brand/`:
+
+- `founder-hero.jpg`
+- `community-collaborate.jpg`
+- `founder-workspace.jpg`
+
+They are sourced from **Unsplash** (royalty-free, no attribution required for content use, but credit is welcome). Chosen to match the Fishburners photographic direction (warm-lit, authentic moments, diverse women founders, workspace and community settings) — **not** final brand assets. When the actual Fishburners brand photos are exported from the styleguide, drop them in at the same filenames and they will swap in transparently.
+
+Currently used on:
+- Landing page (`/`), in the "community photo band" between the hero and the features section.
+
 ## What's still missing
 
 - Fishburners logo SVG (isotype, wordmark, imagotype) — pending export from the Brand Styleguide.
