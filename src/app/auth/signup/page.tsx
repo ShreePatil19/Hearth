@@ -53,9 +53,9 @@ export default async function SignupPage({
               id="password"
               name="password"
               type="password"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
               required
-              minLength={6}
+              minLength={8}
               autoComplete="new-password"
             />
           </div>
@@ -68,7 +68,7 @@ export default async function SignupPage({
               type="password"
               placeholder="Confirm your password"
               required
-              minLength={6}
+              minLength={8}
               autoComplete="new-password"
             />
           </div>

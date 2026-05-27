@@ -89,13 +89,23 @@ export type TaggedFields = z.infer<typeof taggedFieldsSchema>;
 // Phase 2 — Community Dashboard
 // ============================================================
 
+// Login allows the legacy 6-char minimum so existing accounts created before
+// the bump can still sign in. Signup enforces 8+ for new accounts.
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export const signupSchema = loginSchema.extend({
-  confirmPassword: z.string().min(6),
+export const SIGNUP_PASSWORD_MIN = 8;
+
+export const signupSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z
+    .string()
+    .min(SIGNUP_PASSWORD_MIN, `Password must be at least ${SIGNUP_PASSWORD_MIN} characters`),
+  confirmPassword: z
+    .string()
+    .min(SIGNUP_PASSWORD_MIN, `Password must be at least ${SIGNUP_PASSWORD_MIN} characters`),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
