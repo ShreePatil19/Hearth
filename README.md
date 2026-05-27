@@ -34,6 +34,27 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Testing
+
+```bash
+# Run unit + integration tests once
+npm test
+
+# Watch mode
+npm run test:watch
+
+# With coverage report (text + html in coverage/)
+npm run test:coverage
+
+# Type-check without emitting
+npm run typecheck
+
+# RLS security test (requires SUPABASE_SERVICE_ROLE_KEY)
+npm run db:test-rls
+```
+
+Tests live next to the code they cover under `src/**/__tests__/` and use Vitest with the `happy-dom` environment. CI runs typecheck, lint, tests, build, and the RLS test on every push and PR.
+
 ### Running scrapers locally
 
 ```bash
