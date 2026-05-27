@@ -155,7 +155,7 @@ export default async function LandingPage() {
                 {COMMUNITY_PHOTOS.map((photo) => (
                   <div
                     key={photo.src}
-                    className="relative aspect-[4/5] overflow-hidden rounded-xl border bg-muted"
+                    className="relative aspect-video overflow-hidden rounded-xl border bg-muted"
                   >
                     <Image
                       src={photo.src}
