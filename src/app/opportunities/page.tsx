@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { parseFilters } from "@/lib/filters";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ActiveFilterChips } from "@/components/active-filter-chips";
 import { FilterSidebar } from "@/components/filter-sidebar";
 import { OpportunityTable } from "@/components/opportunity-table";
 import type { Opportunity } from "@/lib/types";
@@ -80,9 +81,13 @@ export default async function OpportunitiesPage({
 
       {/* Main content */}
       <main className="container flex-1 py-6 md:py-8">
+        <Suspense fallback={null}>
+          <ActiveFilterChips />
+        </Suspense>
+
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
+            <Search className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <p className="text-sm font-medium text-muted-foreground">
               {opps.length} {opps.length === 1 ? "opportunity" : "opportunities"} found
             </p>
