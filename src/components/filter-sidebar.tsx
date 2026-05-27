@@ -246,12 +246,14 @@ export function FilterSidebar() {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:block w-60 shrink-0">
-        <div className="sticky top-20 rounded-xl border bg-card p-5">
-          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
-            <Filter className="h-4 w-4 text-muted-foreground" />
+        <div className="sticky top-20 flex max-h-[calc(100vh-6rem)] flex-col rounded-xl border bg-card">
+          <h2 className="flex shrink-0 items-center gap-2 border-b px-5 py-4 text-sm font-semibold">
+            <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             Filters
           </h2>
-          <FilterControls />
+          <div className="overflow-y-auto px-5 py-5">
+            <FilterControls />
+          </div>
         </div>
       </aside>
 
