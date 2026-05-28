@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Flame } from "lucide-react";
+import { FishburnersWordmark } from "@/components/brand/fishburners-wordmark";
 
 export function SiteFooter() {
   return (
@@ -27,6 +28,19 @@ export function SiteFooter() {
             </Link>
             <span className="h-3 w-px bg-border" />
             <span>Built for women founders</span>
+          </div>
+          <div className="flex items-center gap-2.5 pt-2 text-foreground/80">
+            <span className="font-display text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+              Powered by
+            </span>
+            <a
+              href="https://www.fishburners.com.au/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center transition-opacity hover:opacity-70"
+            >
+              <FishburnersWordmark className="h-3 w-auto" />
+            </a>
           </div>
         </div>
       </div>
