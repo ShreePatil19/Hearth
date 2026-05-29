@@ -8,10 +8,14 @@ export async function GET() {
   const admin = createAdminClient();
 
   // Fetch all active communities
-  const { data: communities } = await admin
+  const { data: communities, error: commError } = await admin
     .from("communities")
     .select("id")
     .eq("status", "active");
+
+  if (commError) {
+    return NextResponse.json({ error: "Failed to fetch communities" }, { status: 500 });
+  }
 
   if (!communities || communities.length === 0) {
     return NextResponse.json({ message: "No active communities" });
