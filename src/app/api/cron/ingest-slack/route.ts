@@ -26,7 +26,10 @@ export async function GET() {
     .eq("status", "active");
 
   if (commErr || !communities) {
-    return NextResponse.json({ error: "Failed to fetch communities", detail: commErr?.message }, { status: 500 });
+    // Do not leak the raw Postgres error text to any caller (it can reach a
+    // client that guessed CRON_SECRET). Log server-side, return a generic body. See #71.
+    console.error("[cron/ingest-slack] failed to fetch communities:", commErr);
+    return NextResponse.json({ error: "Failed to fetch communities" }, { status: 500 });
   }
 
   const results: { community: string; status: string; messages: number; error?: string }[] = [];
