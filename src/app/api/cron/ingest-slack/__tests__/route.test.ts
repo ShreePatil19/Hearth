@@ -47,16 +47,17 @@ describe("ingest-slack cron GET", () => {
     delete process.env.TOKEN_ENCRYPTION_KEY;
   });
 
-  it("returns 500 when the communities query errors", async () => {
+  it("returns a generic 500 with no detail leak when the communities query errors", async () => {
     mockDeps([{ data: null, error: { message: "connection reset" } }]);
     const { GET } = await import("@/app/api/cron/ingest-slack/route");
 
     const res = await GET();
 
     expect(res.status).toBe(500);
-    await expect(res.json()).resolves.toEqual(
-      expect.objectContaining({ error: "Failed to fetch communities", detail: "connection reset" }),
-    );
+    const body = await res.json();
+    expect(body).toEqual({ error: "Failed to fetch communities" });
+    expect(body).not.toHaveProperty("detail");
+    expect(JSON.stringify(body)).not.toContain("connection reset");
   });
 
   it("succeeds with no communities to process", async () => {
