@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import type { Channel } from "@/lib/types";
+import type { Channel } from "@/lib/schemas";
 import type { ActionResult } from "@/lib/action-result";
 
 type ToggleAction = (

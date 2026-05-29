@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { columns } from "@/components/columns";
 import { Inbox } from "lucide-react";
-import type { Opportunity } from "@/lib/types";
+import type { Opportunity } from "@/lib/schemas";
 
 interface OpportunityTableProps {
   data: Opportunity[];
