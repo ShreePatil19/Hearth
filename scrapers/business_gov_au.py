@@ -63,8 +63,9 @@ def scrape() -> list[dict]:
     }
 
     try:
-        # Context manager so the connection pool closes deterministically. See #92.
-        with httpx.Client(timeout=15) as client:
+        # Context manager so the connection pool closes deterministically (#92);
+        # transport retries cover transient Coveo failures (#91).
+        with httpx.Client(timeout=15, transport=httpx.HTTPTransport(retries=3)) as client:
             resp = client.post(
                 COVEO_URL,
                 json=body,
