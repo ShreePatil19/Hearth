@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
 
   // Store encrypted token via RPC
   const encryptionKey = process.env.TOKEN_ENCRYPTION_KEY!;
-  await admin.rpc("store_integration", {
+  const { error: storeError } = await admin.rpc("store_integration", {
     p_community_id: communityId,
     p_platform: "slack",
     p_access_token: accessToken,
@@ -116,6 +116,16 @@ export async function GET(request: NextRequest) {
     p_installed_by: user.id,
     p_encryption_key: encryptionKey,
   });
+
+  if (storeError) {
+    console.error("[slack/callback] store_integration failed:", storeError);
+    return NextResponse.redirect(
+      new URL(
+        `/dashboard?error=${encodeURIComponent("Failed to store Slack token")}`,
+        request.url,
+      ),
+    );
+  }
 
   // Sync channels from Slack
   try {
