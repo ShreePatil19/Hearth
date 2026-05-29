@@ -5,7 +5,7 @@ import { ExternalLink, Clock, CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
-import type { Opportunity } from "@/lib/types";
+import type { Opportunity } from "@/lib/schemas";
 
 const TYPE_COLORS: Record<string, string> = {
   grant: "bg-success-100 text-success-800 border-success-200",

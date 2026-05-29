@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { formatCurrency } from "@/lib/utils";
-import type { Opportunity } from "@/lib/types";
+import type { Opportunity } from "@/lib/schemas";
 import type { Metadata } from "next";
 
 interface PageProps {

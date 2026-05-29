@@ -1,33 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { filtersToParams, parseFilters, type FilterState } from "@/lib/filters";
+import { parseFilters, type FilterState } from "@/lib/filters";
 
-function roundTrip(state: FilterState): FilterState {
-  const params = filtersToParams(state);
-  const obj: Record<string, string> = {};
-  params.forEach((value, key) => {
-    obj[key] = value;
-  });
-  return parseFilters(obj);
-}
-
-describe("parseFilters / filtersToParams", () => {
-  it("round-trips a fully populated filter state without loss", () => {
-    const original: FilterState = {
-      type: ["grant", "fund"],
-      stage: ["seed", "series_a"],
-      industry: ["tech", "climate"],
-      geo: ["AU", "Global"],
-      aussieOnly: true,
-      equityFree: true,
-      impactFocus: true,
-      applicationCycle: ["rolling", "ongoing"],
-    };
-
-    expect(roundTrip(original)).toEqual(original);
-  });
-
-  it("round-trips an empty filter state", () => {
-    const empty: FilterState = {
+describe("parseFilters", () => {
+  it("returns an all-empty filter state when no params are provided", () => {
+    const expected: FilterState = {
       type: [],
       stage: [],
       industry: [],
@@ -38,6 +14,60 @@ describe("parseFilters / filtersToParams", () => {
       applicationCycle: [],
     };
 
-    expect(roundTrip(empty)).toEqual(empty);
+    expect(parseFilters({})).toEqual(expected);
+  });
+
+  it("splits comma-separated strings into arrays", () => {
+    const result = parseFilters({
+      type: "grant,fund",
+      stage: "seed,series_a",
+      industry: "tech,climate",
+      geo: "AU,Global",
+      cycle: "rolling,ongoing",
+    });
+
+    expect(result.type).toEqual(["grant", "fund"]);
+    expect(result.stage).toEqual(["seed", "series_a"]);
+    expect(result.industry).toEqual(["tech", "climate"]);
+    expect(result.geo).toEqual(["AU", "Global"]);
+    expect(result.applicationCycle).toEqual(["rolling", "ongoing"]);
+  });
+
+  it("preserves array params as-is", () => {
+    const result = parseFilters({
+      type: ["grant", "fund"],
+      stage: ["seed"],
+    });
+
+    expect(result.type).toEqual(["grant", "fund"]);
+    expect(result.stage).toEqual(["seed"]);
+  });
+
+  it("filters out empty segments from comma-separated strings", () => {
+    const result = parseFilters({ type: "grant,,fund,," });
+
+    expect(result.type).toEqual(["grant", "fund"]);
+  });
+
+  it("parses boolean flags only when set to the literal 'true'", () => {
+    expect(parseFilters({ aussie: "true" }).aussieOnly).toBe(true);
+    expect(parseFilters({ aussie: "false" }).aussieOnly).toBe(false);
+    expect(parseFilters({ aussie: "1" }).aussieOnly).toBe(false);
+    expect(parseFilters({}).aussieOnly).toBe(false);
+
+    expect(parseFilters({ equity: "true" }).equityFree).toBe(true);
+    expect(parseFilters({ impact: "true" }).impactFocus).toBe(true);
+  });
+
+  it("ignores undefined params", () => {
+    const result = parseFilters({
+      type: undefined,
+      stage: undefined,
+      aussie: undefined,
+    });
+
+    expect(result.type).toEqual([]);
+    expect(result.stage).toEqual([]);
+    expect(result.aussieOnly).toBe(false);
   });
 });

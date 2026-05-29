@@ -30,15 +30,3 @@ export function parseFilters(
   };
 }
 
-export function filtersToParams(filters: FilterState): URLSearchParams {
-  const params = new URLSearchParams();
-  if (filters.type.length) params.set("type", filters.type.join(","));
-  if (filters.stage.length) params.set("stage", filters.stage.join(","));
-  if (filters.industry.length) params.set("industry", filters.industry.join(","));
-  if (filters.geo.length) params.set("geo", filters.geo.join(","));
-  if (filters.aussieOnly) params.set("aussie", "true");
-  if (filters.equityFree) params.set("equity", "true");
-  if (filters.impactFocus) params.set("impact", "true");
-  if (filters.applicationCycle.length) params.set("cycle", filters.applicationCycle.join(","));
-  return params;
-}

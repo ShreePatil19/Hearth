@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { ActiveFilterChips } from "@/components/active-filter-chips";
 import { FilterSidebar } from "@/components/filter-sidebar";
 import { OpportunityTable } from "@/components/opportunity-table";
-import type { Opportunity } from "@/lib/types";
+import type { Opportunity } from "@/lib/schemas";
 
 // Gated by middleware — only approved members reach this page.
 export default async function OpportunitiesPage({
