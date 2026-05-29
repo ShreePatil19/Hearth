@@ -18,7 +18,15 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      // Don't silently proceed to /dashboard with no session (the user would
+      // hit a confusing redirect loop). Surface a generic failure. See #85.
+      console.error("[auth/callback] exchangeCodeForSession failed:", error);
+      return NextResponse.redirect(
+        new URL("/auth/login?error=Sign-in link expired. Please try again.", request.url),
+      );
+    }
   }
 
   return NextResponse.redirect(new URL(redirectTo, request.url));
