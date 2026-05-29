@@ -111,4 +111,133 @@ describe("promoteMember", () => {
       ]),
     );
   });
+
+  it("rejects a missing or invalid user ID before touching the database", async () => {
+    const client = buildSupabaseMock({ user: { id: "caller-1" }, profile: { is_admin: true } });
+    mockSupabase(client);
+    const { promoteMember } = await import("@/app/admin/members/actions");
+
+    const result = await promoteMember(null, new FormData());
+
+    expect(result).toEqual({ error: expect.stringMatching(/Missing or invalid user ID/) });
+    expect(client._spies.update).not.toHaveBeenCalled();
+  });
+
+  it("surfaces a database error from the promote update", async () => {
+    const client = buildSupabaseMock({
+      user: { id: "caller-1" },
+      profile: { is_admin: true },
+      updateError: { message: "constraint violation" },
+    });
+    mockSupabase(client);
+    const { promoteMember } = await import("@/app/admin/members/actions");
+
+    const result = await promoteMember(null, makeFormData(VALID_UUID));
+
+    expect(result).toEqual({ error: expect.stringMatching(/Failed to promote member: constraint violation/) });
+  });
+});
+
+describe("approveMember", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.doUnmock("@/lib/supabase/server");
+    vi.doUnmock("next/cache");
+  });
+
+  it("stamps approved_at/approved_by when an admin approves a member", async () => {
+    const client = buildSupabaseMock({ user: { id: "caller-1" }, profile: { is_admin: true } });
+    mockSupabase(client);
+    const { approveMember } = await import("@/app/admin/members/actions");
+
+    const result = await approveMember(null, makeFormData(VALID_UUID));
+
+    expect(result).toBeNull();
+    expect(client._spies.update).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "approved", approved_by: "caller-1", approved_at: expect.any(String) }),
+    );
+  });
+
+  it("returns an error for an unauthenticated caller", async () => {
+    const client = buildSupabaseMock({ user: null, profile: null });
+    mockSupabase(client);
+    const { approveMember } = await import("@/app/admin/members/actions");
+
+    const result = await approveMember(null, makeFormData(VALID_UUID));
+
+    expect(result).toEqual({ error: expect.stringMatching(/signed in/i) });
+    expect(client._spies.update).not.toHaveBeenCalled();
+  });
+
+  it("returns an error for a non-admin caller", async () => {
+    const client = buildSupabaseMock({ user: { id: "caller-1" }, profile: { is_admin: false } });
+    mockSupabase(client);
+    const { approveMember } = await import("@/app/admin/members/actions");
+
+    const result = await approveMember(null, makeFormData(VALID_UUID));
+
+    expect(result).toEqual({ error: expect.stringMatching(/admin/i) });
+    expect(client._spies.update).not.toHaveBeenCalled();
+  });
+
+  it("surfaces a database error", async () => {
+    const client = buildSupabaseMock({
+      user: { id: "caller-1" },
+      profile: { is_admin: true },
+      updateError: { message: "write failed" },
+    });
+    mockSupabase(client);
+    const { approveMember } = await import("@/app/admin/members/actions");
+
+    const result = await approveMember(null, makeFormData(VALID_UUID));
+
+    expect(result).toEqual({ error: expect.stringMatching(/Failed to update member: write failed/) });
+  });
+});
+
+describe("rejectMember / reinstateMember", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.doUnmock("@/lib/supabase/server");
+    vi.doUnmock("next/cache");
+  });
+
+  it("rejectMember sets status='rejected' without an approval stamp", async () => {
+    const client = buildSupabaseMock({ user: { id: "caller-1" }, profile: { is_admin: true } });
+    mockSupabase(client);
+    const { rejectMember } = await import("@/app/admin/members/actions");
+
+    const result = await rejectMember(null, makeFormData(VALID_UUID));
+
+    expect(result).toBeNull();
+    expect(client._spies.update).toHaveBeenCalledWith({ status: "rejected" });
+  });
+
+  it("reinstateMember sets status='pending'", async () => {
+    const client = buildSupabaseMock({ user: { id: "caller-1" }, profile: { is_admin: true } });
+    mockSupabase(client);
+    const { reinstateMember } = await import("@/app/admin/members/actions");
+
+    const result = await reinstateMember(null, makeFormData(VALID_UUID));
+
+    expect(result).toBeNull();
+    expect(client._spies.update).toHaveBeenCalledWith({ status: "pending" });
+  });
+
+  it("rejectMember rejects a missing user ID", async () => {
+    const client = buildSupabaseMock({ user: { id: "caller-1" }, profile: { is_admin: true } });
+    mockSupabase(client);
+    const { rejectMember } = await import("@/app/admin/members/actions");
+
+    const result = await rejectMember(null, new FormData());
+
+    expect(result).toEqual({ error: expect.stringMatching(/Missing or invalid user ID/) });
+    expect(client._spies.update).not.toHaveBeenCalled();
+  });
 });

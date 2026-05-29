@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { slackTsToDate } from "@/lib/slack";
+import { SLACK_SCOPES, hmacUserId, slackTsToDate } from "@/lib/slack";
 
 describe("slackTsToDate", () => {
   it("parses a standard Slack ts (seconds.fraction) to the correct epoch", () => {
@@ -16,5 +16,29 @@ describe("slackTsToDate", () => {
 
   it("throws on an empty ts", () => {
     expect(() => slackTsToDate("")).toThrow(/Invalid Slack ts/);
+  });
+});
+
+describe("hmacUserId", () => {
+  it("produces a 64-character hex SHA-256 digest", () => {
+    const hash = hmacUserId("U123", "salt-a");
+    expect(hash).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("is deterministic for the same user and salt", () => {
+    expect(hmacUserId("U123", "salt-a")).toBe(hmacUserId("U123", "salt-a"));
+  });
+
+  it("produces different digests across salts (cross-community isolation)", () => {
+    expect(hmacUserId("U123", "salt-a")).not.toBe(hmacUserId("U123", "salt-b"));
+  });
+});
+
+describe("SLACK_SCOPES", () => {
+  it("requests the read/history scopes Hearth needs", () => {
+    const scopes = SLACK_SCOPES.split(",");
+    expect(scopes).toEqual(
+      expect.arrayContaining(["channels:read", "channels:history", "users:read"]),
+    );
   });
 });
