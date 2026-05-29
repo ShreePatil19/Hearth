@@ -4,6 +4,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 from shared.db import upsert_opportunity
+from shared.http import make_session
 
 BASE_URL = "https://www.toryburchfoundation.org"
 PAGES = [
@@ -32,7 +33,7 @@ DEFAULTS = {
 
 def scrape() -> list[dict]:
     """Fetch and parse Tory Burch Foundation pages."""
-    session = requests.Session()
+    session = make_session()
     session.headers.update(HEADERS)
     opportunities: list[dict] = []
 

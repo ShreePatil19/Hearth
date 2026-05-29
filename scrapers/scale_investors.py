@@ -4,6 +4,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 from shared.db import upsert_opportunity
+from shared.http import make_session
 
 BASE_URL = "https://www.scaleinvestors.com.au"
 HEADERS = {"User-Agent": "HearthBot/1.0 (+https://github.com/systems-collab/Hearth)"}
@@ -27,7 +28,7 @@ DEFAULTS = {
 
 def scrape() -> list[dict]:
     """Fetch and parse Scale Investors pages."""
-    session = requests.Session()
+    session = make_session()
     session.headers.update(HEADERS)
 
     pages = [
