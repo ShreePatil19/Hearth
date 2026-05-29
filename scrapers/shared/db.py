@@ -77,5 +77,7 @@ def upsert_opportunity(
         data = resp.json()
         return data[0] if data else row
     else:
-        print(f"  [error] {name} — {resp.status_code}: {resp.text}")
+        # Do not log resp.text: PostgREST error bodies can echo the request's
+        # Authorization header, leaking the service-role key into CI logs. See #94.
+        print(f"  [error] {name}: HTTP {resp.status_code}")
         return None

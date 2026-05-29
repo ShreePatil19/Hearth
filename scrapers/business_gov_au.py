@@ -51,7 +51,6 @@ def _extract_amount(text: str) -> tuple[int | None, int | None]:
 
 def scrape() -> list[dict]:
     """Fetch grants from the Coveo search API."""
-    client = httpx.Client(timeout=15)
     opportunities: list[dict] = []
 
     body = {
@@ -64,16 +63,18 @@ def scrape() -> list[dict]:
     }
 
     try:
-        resp = client.post(
-            COVEO_URL,
-            json=body,
-            headers={
-                "Authorization": f"Bearer {COVEO_TOKEN}",
-                "Content-Type": "application/json",
-            },
-        )
-        resp.raise_for_status()
-        data = resp.json()
+        # Context manager so the connection pool closes deterministically. See #92.
+        with httpx.Client(timeout=15) as client:
+            resp = client.post(
+                COVEO_URL,
+                json=body,
+                headers={
+                    "Authorization": f"Bearer {COVEO_TOKEN}",
+                    "Content-Type": "application/json",
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
     except Exception as e:
         print(f"  [error] Coveo API call failed: {e}")
         return []

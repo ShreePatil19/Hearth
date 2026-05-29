@@ -44,3 +44,21 @@ jobs:
       - name: RLS Security Test
         if: env.SUPABASE_SERVICE_ROLE_KEY != ''
         run: npx tsx scripts/test-rls.ts
+
+  scrapers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install scraper dependencies
+        run: pip install -r scrapers/requirements.txt
+
+      - name: Run scraper tests
+        run: python -m pytest scrapers/tests -q
