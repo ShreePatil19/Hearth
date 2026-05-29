@@ -2,7 +2,7 @@
 regex patterns and source-specific defaults."""
 from __future__ import annotations
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from .models import TaggedFields
 
 # Common date patterns
@@ -63,7 +63,9 @@ INDUSTRY_KEYWORDS: dict[str, str] = {
 GEO_KEYWORDS: dict[str, str] = {
     r"\baustralia[n]?\b|\bau\b|\banz\b": "AU",
     r"\bnew\s+zealand\b|\bnz\b": "APAC",
-    r"\bunited\s+states\b|\busa\b|\bu\.s\.\b|\bamerican\b|\bus\b": "US",
+    # Case-sensitive (?-i:US) so the country abbreviation "US" matches but the
+    # lowercase pronoun "us" (e.g. "contact us") does not. See #90.
+    r"\bunited\s+states\b|\busa\b|\bu\.s\.\b|\bamerican\b|\b(?-i:US)\b": "US",
     r"\bunited\s+kingdom\b|\buk\b|\bbritish\b": "UK",
     r"\beurope\b|\beu\b|\beuropean\b": "EU",
     r"\basia.pacific\b|\bapac\b|\bsoutheast\s+asia\b": "APAC",
@@ -124,20 +126,26 @@ CYCLE_KEYWORDS: dict[str, str] = {
 
 
 def _parse_date(text: str) -> str | None:
-    """Try to extract the earliest future deadline from text."""
-    now = datetime.now()
+    """Try to extract the earliest deadline that is today or later."""
+    # Compare against the UTC date. GitHub Actions runs in UTC; using a naive
+    # local datetime here dropped a deadline that was still hours away in AU
+    # time, and on the runner it could drop a deadline that lands today. See #93.
+    today = datetime.now(timezone.utc).date()
     dates: list[datetime] = []
 
     for pattern in DATE_PATTERNS:
         for match in re.finditer(pattern, text, re.IGNORECASE):
             date_str = match.group(1).replace(",", "").replace(".", "").strip()
+            # %m/%d/%Y (US order) is intentionally omitted: it is ambiguous with
+            # %d/%m/%Y and the AU-format sources dominate. US sources should set
+            # an explicit deadline default instead of relying on regex. See #95.
             for fmt in [
                 "%B %d %Y", "%b %d %Y", "%d %B %Y", "%d %b %Y",
-                "%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y",
+                "%Y-%m-%d", "%d/%m/%Y",
             ]:
                 try:
                     dt = datetime.strptime(date_str, fmt)
-                    if dt > now:
+                    if dt.date() >= today:
                         dates.append(dt)
                     break
                 except ValueError:
