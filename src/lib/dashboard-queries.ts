@@ -40,9 +40,10 @@ export async function getDashboardMetrics(
   const threadCount = threadMessages?.length || 0;
   const threadPct = totalMessages ? Math.round((threadCount / totalMessages) * 100) : 0;
 
-  // DAU (today)
+  // DAU (today). Use UTC so the day boundary matches the UTC timestamps
+  // stored in message_events, regardless of the server's local timezone. See #79.
   const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  todayStart.setUTCHours(0, 0, 0, 0);
   const { data: todayUsers } = await supabase
     .from("message_events")
     .select("hashed_user_id")
