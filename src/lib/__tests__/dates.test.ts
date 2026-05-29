@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getWeekStart } from "@/app/api/cron/compute-cohorts/route";
+import { getWeekStart } from "@/lib/dates";
 
 describe("getWeekStart (UTC week boundaries)", () => {
   it("returns the preceding Sunday in UTC for the unix epoch", () => {

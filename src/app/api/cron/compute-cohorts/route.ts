@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getWeekStart } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -119,14 +120,4 @@ export async function GET() {
     timestamp: new Date().toISOString(),
     communities_processed: communities.length,
   });
-}
-
-// Exported for unit testing. Uses UTC so the week boundary matches the UTC
-// timestamps stored in message_events, regardless of server timezone. See #79.
-export function getWeekStart(date: Date): string {
-  const d = new Date(date);
-  const day = d.getUTCDay();
-  d.setUTCDate(d.getUTCDate() - day);
-  d.setUTCHours(0, 0, 0, 0);
-  return d.toISOString().split("T")[0];
 }
