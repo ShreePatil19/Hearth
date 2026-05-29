@@ -13,9 +13,11 @@ export function formatCurrency(
   const fmt = (n: number) =>
     new Intl.NumberFormat("en-AU", { style: "currency", currency, maximumFractionDigits: 0 }).format(n);
 
-  if (min && max && min !== max) return `${fmt(min)} – ${fmt(max)}`;
-  if (min) return fmt(min);
-  if (max) return `Up to ${fmt(max)}`;
+  // Explicit null checks: a legitimate amount of 0 is falsy and must not fall
+  // through to "Varies". See #100.
+  if (min !== null && max !== null && min !== max) return `${fmt(min)} to ${fmt(max)}`;
+  if (min !== null) return fmt(min);
+  if (max !== null) return `Up to ${fmt(max)}`;
   return "Varies";
 }
 

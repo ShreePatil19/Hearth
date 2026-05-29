@@ -13,7 +13,14 @@ export function hmacUserId(userId: string, salt: string): string {
  */
 export function slackTsToDate(ts: string): Date {
   const [seconds] = ts.split(".");
-  return new Date(parseInt(seconds, 10) * 1000);
+  const secs = parseInt(seconds ?? "", 10);
+  if (Number.isNaN(secs)) {
+    // A malformed ts would otherwise produce an Invalid Date that crashes the
+    // ingest worker downstream (e.g. on toISOString()). Fail loudly so the
+    // caller's per-message guard can skip it. See #101.
+    throw new Error(`Invalid Slack ts: ${JSON.stringify(ts)}`);
+  }
+  return new Date(secs * 1000);
 }
 
 /**
