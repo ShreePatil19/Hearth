@@ -31,7 +31,9 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
+    // Generic message: do not leak whether the email is already registered
+    // (user enumeration). See issue #68.
+    redirect("/auth/signup?error=Could not complete signup. Please try again.");
   }
 
   redirect("/auth/login?message=Check your email to confirm your account");

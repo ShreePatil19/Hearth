@@ -25,7 +25,9 @@ export async function adminLogin(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(`/admin/login?error=${encodeURIComponent(error.message)}`);
+    // Generic message: do not leak account existence or confirmation state
+    // (user enumeration). See issue #68.
+    redirect("/admin/login?error=Invalid email or password");
   }
 
   redirect("/admin");

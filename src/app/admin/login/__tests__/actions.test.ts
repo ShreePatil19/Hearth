@@ -79,4 +79,18 @@ describe("adminLogin rate limiting", () => {
     });
     expect(redirectSpy).toHaveBeenCalledWith("/admin");
   });
+
+  it("returns a generic error and never leaks the Supabase auth message", async () => {
+    const { redirectSpy } = setupMocks({
+      rateLimitSuccess: true,
+      signInError: { message: "Invalid login credentials" },
+    });
+    const { adminLogin } = await import("@/app/admin/login/actions");
+
+    await expect(adminLogin(makeFormData())).rejects.toThrow(/NEXT_REDIRECT/);
+
+    expect(redirectSpy).toHaveBeenCalledWith("/admin/login?error=Invalid email or password");
+    const urls = redirectSpy.mock.calls.map((c) => c[0]);
+    expect(urls.some((u) => /Invalid login credentials/.test(u))).toBe(false);
+  });
 });

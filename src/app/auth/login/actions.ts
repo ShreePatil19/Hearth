@@ -29,7 +29,9 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
+    // Generic message: do not leak whether the account exists or its
+    // confirmation state (user enumeration). See issue #68.
+    redirect("/auth/login?error=Invalid email or password");
   }
 
   redirect(redirectTo);
