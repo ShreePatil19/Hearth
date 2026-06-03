@@ -1,6 +1,7 @@
 """Scraper for business.gov.au grants via Coveo search API.
 The listing page is 100% JavaScript-rendered, so we hit the Coveo API directly."""
 from __future__ import annotations
+import os
 import time
 import re
 from datetime import datetime, timezone
@@ -9,7 +10,6 @@ from shared.db import upsert_opportunity
 
 BASE_URL = "https://business.gov.au"
 COVEO_URL = "https://departmentofindustryscienceenergyandresourcesproduxlo9oz8e.org.coveo.com/rest/search/v2"
-COVEO_TOKEN = "xx9eeaa647-9038-418e-b985-9a469f276965"
 COVEO_CQ = '(NOT @z95xtemplate==(ADB6CA4F03EF4F47B9AC9CE2BA53FF97,FE5DD82648C6436DB87A7C4210C7413B)) ((@z95xtemplate==64642b7d33654d6aabfaa209fe642da9) (@ez120xcludez32xfromz32xsearch==0) OR @z95xtemplate==03c2e6e6631e4ba9b889e4455d7eb090)'
 
 MAX_RESULTS = 300
@@ -51,6 +51,14 @@ def _extract_amount(text: str) -> tuple[int | None, int | None]:
 
 def scrape() -> list[dict]:
     """Fetch grants from the Coveo search API."""
+    # business.gov.au uses a public Coveo search token. Read it from the
+    # environment instead of committing it to source (#96); skip gracefully if
+    # it is not configured so the daily run continues without this source.
+    token = os.environ.get("COVEO_SEARCH_TOKEN", "")
+    if not token:
+        print("  [skip] COVEO_SEARCH_TOKEN not set; skipping business.gov.au")
+        return []
+
     opportunities: list[dict] = []
 
     body = {
@@ -70,7 +78,7 @@ def scrape() -> list[dict]:
                 COVEO_URL,
                 json=body,
                 headers={
-                    "Authorization": f"Bearer {COVEO_TOKEN}",
+                    "Authorization": f"Bearer {token}",
                     "Content-Type": "application/json",
                 },
             )

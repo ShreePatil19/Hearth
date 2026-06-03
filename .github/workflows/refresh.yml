@@ -14,6 +14,7 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      COVEO_SEARCH_TOKEN: ${{ secrets.COVEO_SEARCH_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
