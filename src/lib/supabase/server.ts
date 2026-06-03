@@ -17,8 +17,16 @@ export async function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
-          } catch {
-            // Swallow errors — no auth in Phase 1, cookie writes are no-ops
+          } catch (error) {
+            // Next.js throws when cookies are set during a Server Component render.
+            // Route Handlers and Server Actions can set cookies safely; the
+            // @supabase/ssr docs recommend swallowing in the render context only.
+            if (process.env.NODE_ENV !== "production") {
+              console.warn(
+                "[supabase/server] cookie write skipped:",
+                error instanceof Error ? error.message : error
+              );
+            }
           }
         },
       },
