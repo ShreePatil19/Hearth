@@ -7,7 +7,7 @@ A platform for women founders to find and win funding.
 ## What's here
 
 - **Funding Radar** — public, filterable directory of 308+ grants, accelerators, pitch competitions, and funds from 10 sources. Refreshed daily.
-- **Community Dashboard** — privacy-first analytics for Slack communithearth-five-nu.vercel.app/ies running women-founder groups. Metadata-only ingest, HMAC-hashed user IDs, per-channel opt-in.
+- **Community Dashboard** — privacy-first analytics for Slack communities running women-founder groups. Metadata-only ingest, HMAC-hashed user IDs, per-channel opt-in.
 
 ## Tech stack
 
@@ -17,6 +17,26 @@ A platform for women founders to find and win funding.
 - Vercel hosting + Vercel Cron
 - GitHub Actions for daily scraper refresh
 - Recharts, Sentry, CI with RLS security tests
+
+## Documentation
+
+Full developer docs live in [`docs/`](docs/README.md); start with [`CLAUDE.md`](CLAUDE.md) for an overview and conventions.
+
+**Onboarding**
+- [Architecture](docs/architecture.md) — components, data flows, and trust boundaries
+- [Local setup](docs/setup.md) — environment variables, database, scrapers, tests
+- [Database](docs/database.md) — schema, RLS policies, and the privacy/encryption model
+
+**Subsystems**
+- [Community Dashboard](docs/community-dashboard.md) — Slack ingest, cron jobs, cohorts, charts
+- [Auth & access control](docs/auth-and-access.md) — auth flows, approval gate, middleware, RLS, rate limiting
+- [Data pipeline](docs/data-pipeline.md) — Python scrapers, sources, tagging, daily refresh
+- [API & server actions](docs/api-and-actions.md) — route + server-action catalog with auth requirements
+
+**Supporting**
+- [Frontend](docs/frontend.md) — App Router structure, component library, UI conventions
+- [Deployment & CI/CD](docs/deployment.md) — Vercel, cron, GitHub Actions, Sentry
+- [Contributing](docs/contributing.md) — branch/commit/PR conventions, labels, review gates
 
 ## Local development
 
@@ -83,7 +103,6 @@ src/
     page.tsx              # Funding Radar homepage (public)
     opp/[slug]/           # Opportunity detail pages
     dashboard/            # Community manager dashboard (auth)
-    community/            # Landing page for community managers
     privacy/              # Privacy policy
     auth/                 # Login, signup, callback
     api/                  # Slack OAuth, cron endpoints
@@ -98,6 +117,7 @@ scrapers/                 # Python scrapers (10 sources)
 supabase/migrations/      # Database schema
 scripts/                  # Demo seed + RLS tests
 .github/workflows/        # CI + daily scraper cron
+docs/                     # Developer documentation (see docs/README.md)
 ```
 
 ## Privacy guarantees (Community Dashboard)
