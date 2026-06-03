@@ -7,7 +7,7 @@ A platform for women founders to find and win funding.
 ## What's here
 
 - **Funding Radar** — public, filterable directory of 308+ grants, accelerators, pitch competitions, and funds from 10 sources. Refreshed daily.
-- **Community Dashboard** — privacy-first analytics for Slack communithearth-five-nu.vercel.app/ies running women-founder groups. Metadata-only ingest, HMAC-hashed user IDs, per-channel opt-in.
+- **Community Dashboard** — privacy-first analytics for Slack communities running women-founder groups. Metadata-only ingest, HMAC-hashed user IDs, per-channel opt-in.
 
 ## Tech stack
 
@@ -83,7 +83,6 @@ src/
     page.tsx              # Funding Radar homepage (public)
     opp/[slug]/           # Opportunity detail pages
     dashboard/            # Community manager dashboard (auth)
-    community/            # Landing page for community managers
     privacy/              # Privacy policy
     auth/                 # Login, signup, callback
     api/                  # Slack OAuth, cron endpoints
