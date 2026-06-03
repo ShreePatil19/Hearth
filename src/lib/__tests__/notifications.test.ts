@@ -33,7 +33,7 @@ describe("sendFailureNotification", () => {
   });
 
   it("posts a formatted payload to the webhook URL when configured", async () => {
-    process.env.ALERT_WEBHOOK_URL = "https://hooks.example.com/abc";
+    process.env.ALERT_WEBHOOK_URL = "https://hooks.slack.com/services/T0/B0/secret";
     const fetchMock = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("fetch", fetchMock);
 
@@ -41,7 +41,7 @@ describe("sendFailureNotification", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("https://hooks.example.com/abc");
+    expect(url).toBe("https://hooks.slack.com/services/T0/B0/secret");
     expect(init.method).toBe("POST");
     expect(init.headers).toEqual({ "Content-Type": "application/json" });
     const body = JSON.parse(init.body as string);
@@ -50,7 +50,7 @@ describe("sendFailureNotification", () => {
   });
 
   it("swallows webhook errors and logs them instead of throwing", async () => {
-    process.env.ALERT_WEBHOOK_URL = "https://hooks.example.com/abc";
+    process.env.ALERT_WEBHOOK_URL = "https://hooks.slack.com/services/T0/B0/secret";
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
 
     await expect(sendFailureNotification("t", "d")).resolves.toBeUndefined();
@@ -58,5 +58,45 @@ describe("sendFailureNotification", () => {
       "[ALERT] Failed to send webhook notification:",
       expect.any(Error),
     );
+  });
+
+  it("does not fetch when the webhook host is not allowlisted (SSRF guard)", async () => {
+    process.env.ALERT_WEBHOOK_URL = "https://evil.example.com/webhook";
+    const fetchMock = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendFailureNotification("t", "d");
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not fetch when the webhook points at an internal address", async () => {
+    process.env.ALERT_WEBHOOK_URL = "http://169.254.169.254/latest/meta-data/";
+    const fetchMock = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendFailureNotification("t", "d");
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not fetch over http even on an allowlisted host", async () => {
+    process.env.ALERT_WEBHOOK_URL = "http://hooks.slack.com/services/T0/B0/secret";
+    const fetchMock = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendFailureNotification("t", "d");
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not fetch when userinfo spoofs an allowlisted host", async () => {
+    process.env.ALERT_WEBHOOK_URL = "https://hooks.slack.com@evil.example.com/webhook";
+    const fetchMock = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendFailureNotification("t", "d");
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
