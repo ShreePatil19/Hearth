@@ -37,6 +37,7 @@ Full developer docs live in [`docs/`](docs/README.md); start with [`CLAUDE.md`](
 - [Frontend](docs/frontend.md) — App Router structure, component library, UI conventions
 - [Deployment & CI/CD](docs/deployment.md) — Vercel, cron, GitHub Actions, Sentry
 - [Contributing](docs/contributing.md) — branch/commit/PR conventions, labels, review gates
+- [Brand](docs/BRAND.md) — colour palette, typography, logo usage
 
 ## Local development
 

@@ -56,6 +56,7 @@ npm run lint           # next lint (ESLint)
 npm run typecheck      # tsc --noEmit
 npm test               # vitest run
 npm run test:watch     # vitest (watch)
+npm run test:coverage  # vitest run --coverage
 npm run db:seed        # seed demo dashboard data
 npm run db:test-rls    # RLS security test (needs .env.local)
 ```
@@ -100,4 +101,4 @@ Full developer docs live in [`docs/`](docs/README.md):
 
 - **Onboarding:** `architecture.md`, `setup.md`, `database.md`
 - **Subsystems:** `community-dashboard.md`, `auth-and-access.md`, `data-pipeline.md`, `api-and-actions.md`
-- **Supporting:** `frontend.md`, `deployment.md`, `contributing.md`
+- **Supporting:** `frontend.md`, `deployment.md`, `contributing.md`, `BRAND.md`

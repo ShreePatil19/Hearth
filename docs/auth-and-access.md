@@ -18,7 +18,7 @@ Auth is Supabase Auth (GoTrue) over `@supabase/ssr`. Three sign-in mechanisms ex
 | Google OAuth | `GoogleButton` → `signInWithOAuth({ provider: "google" })` | yes | yes | yes |
 | Magic link (email OTP) | `MagicLinkForm` → `signInWithOtp` | **no** | **no** | yes |
 
-> Note: The task brief implies the regular login page offers magic-link. It does **not** — `src/app/auth/login/page.tsx` renders only `GoogleButton` + an email/password `<form>`. The `MagicLinkForm` (`src/components/auth/magic-link-form.tsx`) is wired up exclusively on `src/app/admin/login/page.tsx`.
+> Note: The regular login page does **not** offer magic-link — `src/app/auth/login/page.tsx` renders only `GoogleButton` + an email/password `<form>`. `MagicLinkForm` (`src/components/auth/magic-link-form.tsx`) is wired up exclusively on `src/app/admin/login/page.tsx`.
 
 ### Email + password
 
@@ -91,7 +91,7 @@ signup / first OAuth login
                                   → gated routes          → /auth/pending
 ```
 
-> Note: unverified — the code in this doc's scope never **inserts** a `user_profiles` row. New rows in `pending` are presumably created by a Postgres trigger on `auth.users` (a `SECURITY DEFINER` function in `supabase/migrations/`). The middleware (§3) also defensively treats a *missing* profile the same as not-approved. Confirm the trigger in [database.md](database.md).
+> Note: New `user_profiles` rows are created automatically by the `on_auth_user_created` trigger on `auth.users` (the `handle_new_user()` `SECURITY DEFINER` function in `003_user_profiles_with_approval.sql`) — see [database.md](database.md). The middleware (§3) also defensively treats a *missing* profile the same as not-approved.
 
 ### How approval happens
 

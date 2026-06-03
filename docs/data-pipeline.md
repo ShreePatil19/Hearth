@@ -31,7 +31,7 @@ source website / API
 run_all.expire_stale_opportunities()  # PATCH rows past deadline / stale → is_active=false
 ```
 
-> Note: unverified — the exact column set of the `opportunities` table is not defined inside `scrapers/`; see [database.md](database.md). The fields written are the keys assembled in `scrapers/shared/db.py` plus the `TaggedFields` model (`scrapers/shared/models.py`).
+> Note: the `opportunities` column set lives in the migrations, not in `scrapers/` — see [database.md](database.md). The fields written are the keys assembled in `scrapers/shared/db.py` plus the `TaggedFields` model (`scrapers/shared/models.py`).
 
 ---
 
@@ -116,7 +116,7 @@ Validators: `description`/`eligibility_summary` are capped at 500 chars; `stage`
 
 ### `tagger.py` — classification
 
-> **Important discrepancy:** `scrapers/shared/tagger.py` is a **rule-based tagger** ("Rule-based tagger — no LLM needed", line 1). It uses regex + keyword maps + source-supplied `defaults` only. **It does NOT call the Anthropic API**, and `ANTHROPIC_API_KEY` is not read anywhere under `scrapers/` (confirmed: zero matches for `anthropic`/`ANTHROPIC`). The repo's `CLAUDE.md` and the daily workflow still reference Anthropic tagging / pass `ANTHROPIC_API_KEY` — that env var is currently unused by this pipeline. See "Daily refresh" below.
+> **Important discrepancy:** `scrapers/shared/tagger.py` is a **rule-based tagger** ("Rule-based tagger — no LLM needed", line 1). It uses regex + keyword maps + source-supplied `defaults` only. **It does NOT call the Anthropic API**, and `ANTHROPIC_API_KEY` is not read anywhere under `scrapers/` (confirmed: zero matches for `anthropic`/`ANTHROPIC`). The daily workflow still passes `ANTHROPIC_API_KEY` (`.github/workflows/refresh.yml`), but that env var is currently unused by this pipeline. See "Daily refresh" below.
 
 `tag_opportunity(raw_text, name, defaults=None) -> TaggedFields | None` (`scrapers/shared/tagger.py`):
 
@@ -165,7 +165,7 @@ Two fetch styles are in use:
 | HTML scrape | `amber_grant.py`, `techstars.py` | `make_session()` + a `HearthBot/1.0` `User-Agent`, `BeautifulSoup(resp.text, "html.parser")`, extract text from `main`/`article`/`body`, `time.sleep(3)` between pages. Static per-source `DEFAULTS`/`PROGRAMS`. |
 | JSON / API | `business_gov_au.py` | Hits the site's Coveo search API directly (the listing page is JS-rendered), builds `raw_text` from response fields, derives `deadline`/amounts/geo, and passes a per-item `defaults`. Uses `httpx.Client(transport=httpx.HTTPTransport(retries=3))`. |
 
-> Note: the remaining seven modules (`cartier`, `scale_investors`, `ifundwomen`, `tory_burch`, `heads_over_heels`, `sbe_australia`, `sheeo_coralus`) were not read line-by-line for this doc; they are assumed to follow the same `scrape()`/`run()` contract because `run_all.py` calls `module.run()` uniformly. Unverified — confirm before relying on per-source details.
+> Note: the other seven modules (`cartier`, `scale_investors`, `ifundwomen`, `tory_burch`, `heads_over_heels`, `sbe_australia`, `sheeo_coralus`) follow the same `scrape()`/`run()` contract — `run_all.py` invokes `module.run()` uniformly for all ten — though each targets a different site, so per-source parsing differs.
 
 ---
 
