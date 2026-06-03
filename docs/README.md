@@ -22,6 +22,7 @@ New to the codebase? Read these in order:
 - **[frontend.md](frontend.md)** — App Router structure, the component library, and UI conventions.
 - **[deployment.md](deployment.md)** — Vercel hosting, Vercel Cron, GitHub Actions CI/CD, Sentry, and secrets.
 - **[contributing.md](contributing.md)** — branch/commit/PR conventions, issue labels, and review gates.
+- **[BRAND.md](BRAND.md)** — brand reference: colour palette, typography, and logo usage.
 
 ## Keeping docs accurate
 

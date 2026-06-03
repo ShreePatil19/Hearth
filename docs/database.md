@@ -93,7 +93,7 @@ Top-level tenant for the Community Dashboard; one row per connected Slack worksp
 
 **Relationships:** parent of `integrations`, `channels`, `message_events`, `cohort_snapshots`, `ingest_log` (all cascade-delete on community removal).
 
-> Note: unverified — no explicit secondary index is declared on `communities`; lookups by `share_token` / `slack_team_id` rely on the PK and the `UNIQUE(slack_team_id)` constraint. `share_token` itself has no separate index in the SQL.
+> Note: `communities` declares no secondary index on `share_token`; lookups rely on the primary key and the `UNIQUE(slack_team_id)` constraint.
 
 ### integrations
 
@@ -300,7 +300,7 @@ Hearth's privacy posture (see also root [CLAUDE.md](../CLAUDE.md) and [community
 - Slack user IDs are HMAC-SHA256 hashed with that salt before storage; only the digest lands in `message_events.hashed_user_id` (`TEXT NOT NULL`). A per-community salt means the same Slack user produces a different hash in different communities, preventing cross-tenant correlation.
 - The dashboard never reverses the hash: `getTopContributors` in `src/lib/dashboard-queries.ts` labels contributors `Contributor #N` and shows only `hash.slice(0, 8)` as a `hashPreview`.
 
-> Note: unverified from the files in scope — the SQL stores `hashed_user_id` but the **HMAC computation itself** is performed in application code (Slack ingest), not in these migrations. The "HMAC-SHA256 + per-community salt" mechanism is asserted by root [CLAUDE.md](../CLAUDE.md); confirm the exact algorithm in the ingest/Slack library under `src/lib/` (see [data-pipeline](./data-pipeline.md) / [community-dashboard](./community-dashboard.md)).
+> Note: the SQL stores `hashed_user_id`, but the HMAC-SHA256 hashing (per-community salt) is done in application code — `hmacUserId` in `src/lib/slack.ts`, called during Slack ingest — not in these migrations. See [community-dashboard](./community-dashboard.md).
 
 ### pgcrypto token encryption (`TOKEN_ENCRYPTION_KEY`)
 
@@ -310,7 +310,7 @@ OAuth tokens are never stored in plaintext. In `supabase/migrations/002_phase2_c
 - **Retrieval** — `get_decrypted_token(p_community_id, p_encryption_key)` (`SECURITY DEFINER`) returns the plaintext via `pgp_sym_decrypt(...)`. Intended for `service_role` only (no table grant exposes the ciphertext to the browser, and `integrations` SELECT is owner-gated and returns only `BYTEA`).
 - **Key handling** — the symmetric key is resolved as `COALESCE(p_encryption_key, current_setting('app.settings.token_encryption_key', true))`. The env var is named **`TOKEN_ENCRYPTION_KEY`** (value redacted; documented by name only) and is either passed explicitly by the caller or read from the Postgres GUC `app.settings.token_encryption_key`.
 
-> Note: unverified — the migrations do not set `app.settings.token_encryption_key`; it must be configured out-of-band (DB setting or, more commonly, the app passing `p_encryption_key` from the `TOKEN_ENCRYPTION_KEY` env var). Confirm the wiring in the Slack/server code (see [api-and-actions](./api-and-actions.md)).
+> Note: the migrations do not set the `app.settings.token_encryption_key` GUC; the app passes the key as `p_encryption_key` (from the `TOKEN_ENCRYPTION_KEY` env var) when calling `store_integration` / `get_decrypted_token`, with `current_setting(...)` as a fallback. See [api-and-actions](./api-and-actions.md).
 
 ---
 
@@ -325,7 +325,7 @@ Defined in `supabase/migrations/002_phase2_community_dashboard.sql` (plus `is_ad
 | `get_decrypted_token(p_community_id, p_encryption_key)` | `TABLE(access_token TEXT, refresh_token TEXT)` | Decrypts stored tokens (see §4); `service_role` use only. |
 | `revoke_community(p_community_id UUID)` | `BOOLEAN` | Deletes the community; FK `ON DELETE CASCADE` removes integrations, channels, message_events, cohort_snapshots, ingest_log. Returns whether a row was deleted. |
 
-> Note: unverified — the migrations contain **no explicit `GRANT EXECUTE`** for `get_shared_dashboard`, `store_integration`, `get_decrypted_token`, or `revoke_community` (only `is_admin()` is granted to `authenticated` in `003`). Default `EXECUTE` privileges depend on Supabase role config; confirm which roles may call `get_shared_dashboard` (it must be reachable by `anon`/`authenticated` for public sharing to work). The remaining three are intended for `service_role` and should not be exposed to the browser — verify the grants in the live DB.
+> Caveat: the migrations declare **no explicit `GRANT EXECUTE`** for `get_shared_dashboard`, `store_integration`, `get_decrypted_token`, or `revoke_community` (only `is_admin()` is granted to `authenticated`, in `003`). Effective `EXECUTE` privileges therefore depend on Supabase's default role config — confirm in the live DB that `get_shared_dashboard` is callable by `anon`/`authenticated` (required for public sharing) and that the other three remain restricted to `service_role`. (Tracked in issue #63 / PR #116.)
 
 ---
 
@@ -349,17 +349,18 @@ Both target issue #17 and overlap heavily (both DROP/recreate `user_profiles_adm
 - The shared `005` prefix means **ordering between the two is undefined by filename alone**; apply `005_fix_user_profiles_rls.sql` *before* `005_user_profiles_rls_hardening.sql` to match the intended end state (hardening on top of fix).
 - Two immutability triggers fire on every `user_profiles` UPDATE. Consider consolidating to one numbered migration / one trigger to remove the ambiguity.
 
-### Rollback (`*.down.sql`) — discrepancy with the issue tracker
+### Rollback (`*.down.sql`)
 
-> **Discrepancy:** the task brief states paired `*.down.sql` rollback files "do not yet exist (tracked in issue #33)". In the current tree they **do exist** — one per migration, with real reversal SQL:
-> - `supabase/migrations/001_create_opportunities.down.sql` — `DROP TABLE ... CASCADE` + `DROP TYPE opportunity_type` (leaves `pgcrypto`).
-> - `supabase/migrations/002_phase2_community_dashboard.down.sql` — drops the four RPCs, the `communities_updated_at` trigger, and all six tables `CASCADE`.
-> - `supabase/migrations/003_user_profiles_with_approval.down.sql` — drops the `on_auth_user_created` trigger, `handle_new_user()`, `is_admin()`, and `user_profiles CASCADE`.
-> - `supabase/migrations/004_tagger_extended_fields.down.sql` — drops the two partial indexes and the five added columns.
-> - `supabase/migrations/005_fix_user_profiles_rls.down.sql` — drops the coercion trigger/function and self-update policy, restores the original (no-`WITH CHECK`) admin policy.
-> - `supabase/migrations/005_user_profiles_rls_hardening.down.sql` — drops the raise trigger/function only (leaves the `WITH CHECK` policies from the fix migration).
->
-> So issue #33 appears **already resolved / stale** — verify the issue status and update the brief. Note the two `005` down-migrations also share the `005` prefix, and `005_user_profiles_rls_hardening.down.sql`'s own header says to apply `005_fix_user_profiles_rls.down.sql` next for a full rollback — i.e. they must be unwound in the reverse of the apply order, which the duplicate numbering does not encode.
+Every migration ships a paired `*.down.sql` with real reversal SQL:
+
+- `001_create_opportunities.down.sql` — `DROP TABLE opportunities CASCADE` + `DROP TYPE opportunity_type` (leaves `pgcrypto`).
+- `002_phase2_community_dashboard.down.sql` — drops the four RPCs, the `communities_updated_at` trigger, and all six tables `CASCADE`.
+- `003_user_profiles_with_approval.down.sql` — drops the `on_auth_user_created` trigger, `handle_new_user()`, `is_admin()`, and `user_profiles CASCADE`.
+- `004_tagger_extended_fields.down.sql` — drops the two partial indexes and the five added columns.
+- `005_fix_user_profiles_rls.down.sql` — drops the coercion trigger/function and self-update policy, restoring the original (no-`WITH CHECK`) admin policy.
+- `005_user_profiles_rls_hardening.down.sql` — drops the raise trigger/function only (leaving the `WITH CHECK` policies from the fix migration).
+
+Roll back in the reverse of the apply order. Because the two `005` files share a prefix (so order isn't encoded by filename), `005_user_profiles_rls_hardening.down.sql`'s header notes that a full rollback should run `005_fix_user_profiles_rls.down.sql` next.
 
 ---
 

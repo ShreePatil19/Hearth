@@ -63,7 +63,7 @@ All server-action files begin with `"use server"`. Form-driven actions parse `Fo
 - **`admin/members`** actions share a private `setMemberStatus(userId, status)` helper. `approveMember` additionally stamps `approved_at` / `approved_by`. These are React `useActionState`-style actions (signature `(_prevState, formData)`).
 - **`dashboard/.../settings`** actions all funnel through `requireOwner`, which uses the **session** Supabase client (subject to RLS). `revokeIntegration` switches to the **admin** client (`createAdminClient`) to invoke the `revoke_community` RPC.
 
-> Note (unverified): the `parseFormUUID`, `parseFormBoolean`, `parseFormString`, `formDataToObject`, and `firstZodError` helpers live in `@/lib/form-data` (referenced but not read for this doc). Their exact validation behavior is inferred from call sites.
+> Note: the `parseFormUUID`, `parseFormBoolean`, `parseFormString`, `formDataToObject`, and `firstZodError` helpers live in `src/lib/form-data.ts`. Server actions use them to coerce `FormData` values into typed, validated inputs — e.g. `parseFormUUID` returns `null` on a malformed UUID and `parseFormBoolean` treats `"true"` as `true`.
 
 ---
 

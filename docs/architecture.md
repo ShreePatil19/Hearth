@@ -22,7 +22,7 @@ This doc gives a newcomer the mental model. For setup see [setup.md](setup.md); 
    Browser ───────────▶ │  server actions, src/middleware.ts (edge gate)│
                         └───────┬───────────────────────┬───────────────┘
                                 │                        │
-              3 Supabase clients│                        │ external integrations
+              4 Supabase clients│                        │ external integrations
               (server/browser/  │                        │
                admin/middleware)│                        ▼
                                 ▼              ┌──────────────────────────┐

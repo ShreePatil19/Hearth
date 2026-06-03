@@ -36,7 +36,7 @@ Python packages installed by `scrapers/requirements.txt` (pinned to exact versio
 | `pydantic` | 2.12.5 | Data validation / models |
 | `pytest` | 9.0.2 | Scraper test runner |
 
-> Tip: To isolate the Python deps, create a virtualenv first (`scrapers/`): `python -m venv venv` then `source venv/Scripts/activate` (Windows) or `source venv/bin/activate` (macOS/Linux). See [README.md](../README.md).
+> Tip: To isolate the Python deps, create a virtualenv first (in `scrapers/`): `python -m venv venv`, then activate it — `.\venv\Scripts\Activate.ps1` (Windows PowerShell) or `source venv/bin/activate` (macOS/Linux). See [README.md](../README.md).
 
 ## 3. Environment variables
 
