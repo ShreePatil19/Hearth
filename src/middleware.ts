@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createMiddlewareClient } from "@/lib/supabase/middleware";
 
+/**
+ * Constant-time comparison for the cron bearer token. Both inputs are hashed to
+ * a fixed-length digest first, so the compare loop never reveals how much of
+ * CRON_SECRET matched (no early-exit timing side channel). Uses Web Crypto so it
+ * runs on both the Edge and Node runtimes. See #71.
+ */
+async function timingSafeEqual(a: string, b: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const [ha, hb] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(a)),
+    crypto.subtle.digest("SHA-256", encoder.encode(b)),
+  ]);
+  const va = new Uint8Array(ha);
+  const vb = new Uint8Array(hb);
+  let diff = 0;
+  for (let i = 0; i < va.length; i++) {
+    diff |= va[i] ^ vb[i];
+  }
+  return diff === 0;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -16,10 +37,18 @@ export async function middleware(request: NextRequest) {
 
   // Cron routes — require CRON_SECRET (Bearer header)
   if (pathname.startsWith("/api/cron/")) {
-    const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    // A missing secret means the deployment is misconfigured. Fail closed, but
+    // make it loud (console.error reaches Sentry) so a forgotten env var is
+    // noticed rather than silently 401-ing every scheduled run. See #71.
+    if (!cronSecret) {
+      console.error("[middleware] CRON_SECRET is not set; rejecting cron request");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !(await timingSafeEqual(authHeader, `Bearer ${cronSecret}`))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
