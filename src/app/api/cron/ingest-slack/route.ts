@@ -35,12 +35,24 @@ export async function GET() {
   const results: { community: string; status: string; messages: number; error?: string }[] = [];
 
   for (const community of communities) {
-    // Create ingest log entry
-    const { data: logEntry } = await admin
+    // Create ingest log entry. If this insert fails, run the ingest anyway but
+    // skip the log updates below, which would otherwise no-op against an
+    // undefined id and hide the failure from operators. See #82.
+    const { data: logEntry, error: logErr } = await admin
       .from("ingest_log")
       .insert({ community_id: community.id, status: "running" })
       .select("id")
       .single();
+
+    if (logErr || !logEntry) {
+      console.error("[cron/ingest-slack] failed to create ingest_log entry:", logErr);
+    }
+
+    const logId: string | undefined = logEntry?.id;
+    const markLog = async (fields: Record<string, unknown>) => {
+      if (!logId) return;
+      await admin.from("ingest_log").update(fields).eq("id", logId);
+    };
 
     try {
       // Get decrypted token
@@ -64,10 +76,7 @@ export async function GET() {
 
       if (!channels || channels.length === 0) {
         // No channels opted in — skip but log success
-        await admin
-          .from("ingest_log")
-          .update({ status: "success", finished_at: new Date().toISOString(), channels_processed: 0, messages_ingested: 0 })
-          .eq("id", logEntry?.id);
+        await markLog({ status: "success", finished_at: new Date().toISOString(), channels_processed: 0, messages_ingested: 0 });
 
         results.push({ community: community.id, status: "skipped", messages: 0 });
         continue;
@@ -137,27 +146,21 @@ export async function GET() {
       }
 
       // Update ingest log
-      await admin
-        .from("ingest_log")
-        .update({
-          status: "success",
-          finished_at: new Date().toISOString(),
-          channels_processed: channels.length,
-          messages_ingested: totalMessages,
-        })
-        .eq("id", logEntry?.id);
+      await markLog({
+        status: "success",
+        finished_at: new Date().toISOString(),
+        channels_processed: channels.length,
+        messages_ingested: totalMessages,
+      });
 
       results.push({ community: community.id, status: "success", messages: totalMessages });
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Unknown error";
-      await admin
-        .from("ingest_log")
-        .update({
-          status: "error",
-          finished_at: new Date().toISOString(),
-          error_message: errorMsg,
-        })
-        .eq("id", logEntry?.id);
+      await markLog({
+        status: "error",
+        finished_at: new Date().toISOString(),
+        error_message: errorMsg,
+      });
 
       results.push({ community: community.id, status: "error", messages: 0, error: errorMsg });
 
