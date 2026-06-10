@@ -175,4 +175,24 @@ describe("ingest-slack cron GET", () => {
     expect(body.status).toBe("success");
     expect(body.results[0]).toEqual({ community: "com1", status: "success", messages: 0 });
   });
+
+  it("continues without a log id and surfaces the failure when ingest_log insert errors", async () => {
+    mockDeps([
+      { data: [{ id: "com1", salt: "s", slack_team_id: "T1", status: "active" }], error: null },
+      { data: null, error: { message: "ingest_log insert failed" } }, // ingest_log insert errors
+      { data: [{ access_token: "xoxb" }] }, // get_decrypted_token rpc
+      { data: [] }, // channels (none opted in); the log update is guarded out
+    ]);
+    const { GET } = await import("@/app/api/cron/ingest-slack/route");
+
+    const res = await GET();
+
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.results).toEqual([{ community: "com1", status: "skipped", messages: 0 }]);
+    expect(console.error).toHaveBeenCalledWith(
+      "[cron/ingest-slack] failed to create ingest_log entry:",
+      { message: "ingest_log insert failed" },
+    );
+  });
 });
