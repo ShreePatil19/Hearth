@@ -6,13 +6,7 @@ import { MessageVolumeChart } from "@/components/dashboard/message-volume-chart"
 import { ChannelBreakdownChart } from "@/components/dashboard/channel-breakdown-chart";
 import { TopContributorsTable } from "@/components/dashboard/top-contributors-table";
 import { NewVsReturningChart } from "@/components/dashboard/new-vs-returning-chart";
-import {
-  getDashboardMetrics,
-  getMessageVolume,
-  getChannelBreakdown,
-  getTopContributors,
-  getNewVsReturning,
-} from "@/lib/dashboard-queries";
+import { getSharedDashboardData } from "@/lib/shared-dashboard-queries";
 
 interface PageProps {
   params: Promise<{ shareToken: string }>;
@@ -30,16 +24,12 @@ export default async function SharedDashboardPage({ params }: PageProps) {
   if (!shared || shared.length === 0) notFound();
 
   const { community_id: communityId, community_name: communityName } = shared[0];
-  const range = "30d" as const;
 
-  // Fetch metrics using admin client (bypasses RLS)
-  const [metrics, volume, channels, contributors, newVsReturning] = await Promise.all([
-    getDashboardMetrics(admin, communityId, range),
-    getMessageVolume(admin, communityId, range),
-    getChannelBreakdown(admin, communityId, range),
-    getTopContributors(admin, communityId, range),
-    getNewVsReturning(admin, communityId, range),
-  ]);
+  // Fetch read-only metrics through the dedicated shared-dashboard accessor,
+  // which pins the time window and never exposes the general (Range-accepting)
+  // query functions to this public route. See #107.
+  const { metrics, volume, channels, contributors, newVsReturning } =
+    await getSharedDashboardData(admin, communityId);
 
   return (
     <div className="min-h-screen bg-background">
