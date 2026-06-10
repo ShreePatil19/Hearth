@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 type AdminOpts = {
   existingCommunity?: { id: string } | null;
   insertResult?: { data: { id: string } | null; error: { message: string } | null };
+  updateError?: { message: string } | null;
   storeError?: { message: string } | null;
 };
 
@@ -12,7 +13,7 @@ function buildAdmin(opts: AdminOpts) {
   const singleInsert = vi
     .fn()
     .mockResolvedValue(opts.insertResult ?? { data: { id: "new-community" }, error: null });
-  const updateEq = vi.fn().mockResolvedValue({ error: null });
+  const updateEq = vi.fn().mockResolvedValue({ error: opts.updateError ?? null });
   const upsert = vi.fn().mockResolvedValue({ error: null });
   const rpc = vi.fn().mockResolvedValue({ error: opts.storeError ?? null });
 
@@ -214,5 +215,19 @@ describe("slack/callback GET", () => {
     const res = await GET(buildRequest("?code=abc&state=valid-state", STATE));
 
     expect(res.headers.get("location") ?? "").toContain("Failed%20to%20store%20Slack%20token");
+  });
+
+  it("redirects with an error and does not store a token when updating an existing community fails", async () => {
+    const admin = buildAdmin({
+      existingCommunity: { id: "existing-community" },
+      updateError: { message: "update failed" },
+    });
+    mockDeps({ admin });
+    const { GET } = await import("@/app/api/slack/callback/route");
+
+    const res = await GET(buildRequest("?code=abc&state=valid-state", STATE));
+
+    expect(res.headers.get("location") ?? "").toContain("Failed%20to%20update%20community");
+    expect(admin._spies.rpc).not.toHaveBeenCalled();
   });
 });

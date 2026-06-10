@@ -80,10 +80,19 @@ export async function GET(request: NextRequest) {
 
   if (existingCommunity) {
     communityId = existingCommunity.id;
-    await admin
+    const { error: updateError } = await admin
       .from("communities")
       .update({ status: "active", name: teamName || "Slack Community" })
       .eq("id", communityId);
+
+    // Bail before storing a token against a community we failed to reactivate.
+    // Continuing would write an integration for a stale/incorrect record. See #86.
+    if (updateError) {
+      console.error("[slack/callback] community update failed:", updateError);
+      return NextResponse.redirect(
+        new URL(`/dashboard?error=${encodeURIComponent("Failed to update community")}`, request.url)
+      );
+    }
   } else {
     const { data: newCommunity, error: insertError } = await admin
       .from("communities")
