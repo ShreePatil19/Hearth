@@ -135,14 +135,14 @@ describe("ingest-slack cron GET", () => {
     expect(body.results[0]).toEqual({ community: "com1", status: "success", messages: 1 });
   }, 10000);
 
-  it("logs and stops a channel when Slack returns an API error", async () => {
-    mockDeps(
+  it("marks the community partial and notifies when Slack returns a channel API error", async () => {
+    const { notify } = mockDeps(
       [
         { data: [{ id: "com1", salt: "s", slack_team_id: "T1", status: "active" }], error: null },
         { data: { id: "log1" } },
         { data: [{ access_token: "xoxb" }] },
         { data: [{ id: "c1", platform_channel_id: "C1" }] },
-        {}, // ingest_log success update (no upsert — zero rows)
+        {}, // ingest_log error update
       ],
       async () => ({ json: async () => ({ ok: false, error: "channel_not_found" }) }),
     );
@@ -151,17 +151,24 @@ describe("ingest-slack cron GET", () => {
     const res = await GET();
 
     const body = await res.json();
-    expect(body.results[0]).toEqual({ community: "com1", status: "success", messages: 0 });
+    expect(body.status).toBe("partial_failure");
+    expect(body.results[0]).toEqual({
+      community: "com1",
+      status: "partial",
+      messages: 0,
+      error: "C1: channel_not_found",
+    });
+    expect(notify).toHaveBeenCalledOnce();
   }, 10000);
 
-  it("catches a per-channel fetch failure without failing the whole run", async () => {
-    mockDeps(
+  it("marks the community partial and notifies when a per-channel fetch throws", async () => {
+    const { notify } = mockDeps(
       [
         { data: [{ id: "com1", salt: "s", slack_team_id: "T1", status: "active" }], error: null },
         { data: { id: "log1" } },
         { data: [{ access_token: "xoxb" }] },
         { data: [{ id: "c1", platform_channel_id: "C1" }] },
-        {}, // ingest_log success update
+        {}, // ingest_log error update
       ],
       async () => {
         throw new Error("network down");
@@ -172,8 +179,14 @@ describe("ingest-slack cron GET", () => {
     const res = await GET();
 
     const body = await res.json();
-    expect(body.status).toBe("success");
-    expect(body.results[0]).toEqual({ community: "com1", status: "success", messages: 0 });
+    expect(body.status).toBe("partial_failure");
+    expect(body.results[0]).toEqual({
+      community: "com1",
+      status: "partial",
+      messages: 0,
+      error: "C1: network down",
+    });
+    expect(notify).toHaveBeenCalledOnce();
   });
 
   it("continues without a log id and surfaces the failure when ingest_log insert errors", async () => {
