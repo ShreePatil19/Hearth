@@ -27,15 +27,20 @@ export async function GET() {
       // Compute cohort retention using SQL
       // For each user, find their first active week (cohort).
       // Then count how many from that cohort were active in each subsequent week.
-      let cohortData = null;
-      try {
-        const result = await admin.rpc("compute_cohort_retention" as string, {
-          p_community_id: community.id,
-        });
-        cohortData = result.data;
-      } catch {
-        // RPC doesn't exist — fall through to JS implementation
+      // The cohort SQL RPC is not deployed yet (see #77), so a "function not
+      // found" error (Postgres 42883 / PostgREST PGRST202) is expected and we
+      // fall through to the JS implementation below. Any other error is a real
+      // failure and is surfaced to the outer catch rather than silently masked.
+      // See #83.
+      const { data: rpcData, error: rpcError } = await admin.rpc("compute_cohort_retention", {
+        p_community_id: community.id,
+      });
+
+      if (rpcError && rpcError.code !== "42883" && rpcError.code !== "PGRST202") {
+        throw new Error(`compute_cohort_retention failed: ${rpcError.message}`);
       }
+
+      const cohortData = rpcData;
 
       // If the RPC doesn't exist yet, do it in JS
       if (!cohortData) {

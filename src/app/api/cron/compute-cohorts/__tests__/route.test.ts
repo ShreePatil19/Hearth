@@ -123,4 +123,20 @@ describe("compute-cohorts cron — cohort computation", () => {
     expect(body.communities_processed).toBe(1);
     expect(upsert).not.toHaveBeenCalled();
   });
+
+  it("surfaces an unexpected RPC error instead of silently falling through", async () => {
+    const { client, upsert } = makeAdminFifo([
+      { data: [{ id: "com1" }], error: null }, // communities
+      { data: null, error: { code: "57014", message: "statement timeout" } }, // rpc real error
+    ]);
+    vi.doMock("@/lib/supabase/admin", () => ({ createAdminClient: vi.fn(() => client) }));
+    const { GET } = await import("@/app/api/cron/compute-cohorts/route");
+
+    const res = await GET();
+
+    const body = await res.json();
+    expect(body.communities_processed).toBe(1);
+    expect(upsert).not.toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalled();
+  });
 });
