@@ -83,6 +83,7 @@ export async function GET() {
       }
 
       let totalMessages = 0;
+      const channelErrors: { channel: string; error: string }[] = [];
       const oldest = Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000).toString();
 
       for (const channel of channels) {
@@ -106,6 +107,7 @@ export async function GET() {
 
             if (!data.ok) {
               console.error(`Slack API error for channel ${channel.platform_channel_id}: ${data.error}`);
+              channelErrors.push({ channel: channel.platform_channel_id, error: data.error || "unknown_error" });
               break;
             }
 
@@ -142,18 +144,50 @@ export async function GET() {
           await new Promise((resolve) => setTimeout(resolve, 1200));
         } catch (channelErr) {
           console.error(`Error ingesting channel ${channel.platform_channel_id}:`, channelErr);
+          channelErrors.push({
+            channel: channel.platform_channel_id,
+            error: channelErr instanceof Error ? channelErr.message : String(channelErr),
+          });
         }
       }
 
-      // Update ingest log
-      await markLog({
-        status: "success",
-        finished_at: new Date().toISOString(),
-        channels_processed: channels.length,
-        messages_ingested: totalMessages,
-      });
+      // If any channel failed (revoked scope, archived channel, rate limit),
+      // record the run as an error and escalate, rather than marking the
+      // community a success regardless of how many channels failed. See #84.
+      if (channelErrors.length > 0) {
+        const errorSummary = channelErrors
+          .map((c) => `${c.channel}: ${c.error}`)
+          .join("; ");
 
-      results.push({ community: community.id, status: "success", messages: totalMessages });
+        await markLog({
+          status: "error",
+          finished_at: new Date().toISOString(),
+          channels_processed: channels.length,
+          messages_ingested: totalMessages,
+          error_message: errorSummary,
+        });
+
+        results.push({
+          community: community.id,
+          status: "partial",
+          messages: totalMessages,
+          error: errorSummary,
+        });
+
+        await sendFailureNotification(
+          `Slack ingest partial failure for community ${community.id}`,
+          errorSummary,
+        ).catch(() => {});
+      } else {
+        await markLog({
+          status: "success",
+          finished_at: new Date().toISOString(),
+          channels_processed: channels.length,
+          messages_ingested: totalMessages,
+        });
+
+        results.push({ community: community.id, status: "success", messages: totalMessages });
+      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Unknown error";
       await markLog({
@@ -172,7 +206,7 @@ export async function GET() {
     }
   }
 
-  const hasFailures = results.some((r) => r.status === "error");
+  const hasFailures = results.some((r) => r.status === "error" || r.status === "partial");
 
   return NextResponse.json({
     timestamp: new Date().toISOString(),
