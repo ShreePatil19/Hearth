@@ -99,4 +99,19 @@ describe("middleware", () => {
     );
     expect(goodAuth?.status).not.toBe(401);
   });
+
+  it("/api/cron/* with CRON_SECRET unset returns 401 and logs the misconfig", async () => {
+    delete process.env.CRON_SECRET;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    setupMiddlewareMocks({ user: null, profile: null });
+    const { middleware } = await import("@/middleware");
+
+    const res = await middleware(
+      buildRequest("/api/cron/ingest-slack", { authorization: "Bearer anything" }),
+    );
+    expect(res?.status).toBe(401);
+    expect(errorSpy).toHaveBeenCalled();
+
+    errorSpy.mockRestore();
+  });
 });
