@@ -205,3 +205,38 @@ describe("getLurkerRatio", () => {
     expect(await getLurkerRatio(supabase, COMMUNITY, "30d")).toEqual({ totalMembers: 0, activePosters: 0 });
   });
 });
+
+describe("error handling", () => {
+  it("logs a Supabase error and still returns the empty fallback", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const supabase = makeSupabase([{ data: null, error: { message: "db exploded" } }]);
+
+    const result = await getCohortRetention(supabase, COMMUNITY);
+
+    expect(result).toEqual([]);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[dashboard-queries:getCohortRetention] query failed:",
+      { message: "db exploded" },
+    );
+    errorSpy.mockRestore();
+  });
+
+  it("logs and degrades gracefully when a metrics query errors", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const supabase = makeSupabase([
+      { count: null, error: { message: "boom" } },
+      { data: null },
+      { data: null },
+      { data: null },
+    ]);
+
+    const result = await getDashboardMetrics(supabase, COMMUNITY, "30d");
+
+    expect(result).toEqual({ totalMessages: 0, activeUsers: 0, dau: 0, threadPercentage: 0 });
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[dashboard-queries:getDashboardMetrics:total] query failed:",
+      { message: "boom" },
+    );
+    errorSpy.mockRestore();
+  });
+});

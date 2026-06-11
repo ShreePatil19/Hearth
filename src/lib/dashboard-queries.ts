@@ -1,4 +1,4 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 
 type Range = "7d" | "30d" | "90d";
 
@@ -9,6 +9,18 @@ function getRangeDate(range: Range): string {
   return d.toISOString();
 }
 
+/**
+ * Logs a Supabase query error so dashboard incidents surface in Vercel logs and
+ * Sentry instead of rendering as if there were simply no data. Callers keep
+ * their empty-result fallback for graceful degradation. See #102.
+ */
+function checked<T extends { error: PostgrestError | null }>(name: string, res: T): T {
+  if (res.error) {
+    console.error(`[dashboard-queries:${name}] query failed:`, res.error);
+  }
+  return res;
+}
+
 export async function getDashboardMetrics(
   supabase: SupabaseClient,
   communityId: string,
@@ -16,26 +28,35 @@ export async function getDashboardMetrics(
 ) {
   const since = getRangeDate(range);
 
-  const { count: totalMessages } = await supabase
-    .from("message_events")
-    .select("*", { count: "exact", head: true })
-    .eq("community_id", communityId)
-    .gte("ts", since);
+  const { count: totalMessages } = checked(
+    "getDashboardMetrics:total",
+    await supabase
+      .from("message_events")
+      .select("*", { count: "exact", head: true })
+      .eq("community_id", communityId)
+      .gte("ts", since)
+  );
 
-  const { data: uniqueUsers } = await supabase
-    .from("message_events")
-    .select("hashed_user_id")
-    .eq("community_id", communityId)
-    .gte("ts", since);
+  const { data: uniqueUsers } = checked(
+    "getDashboardMetrics:uniqueUsers",
+    await supabase
+      .from("message_events")
+      .select("hashed_user_id")
+      .eq("community_id", communityId)
+      .gte("ts", since)
+  );
 
   const uniqueUserCount = new Set(uniqueUsers?.map((u) => u.hashed_user_id)).size;
 
-  const { data: threadMessages } = await supabase
-    .from("message_events")
-    .select("has_thread")
-    .eq("community_id", communityId)
-    .eq("has_thread", true)
-    .gte("ts", since);
+  const { data: threadMessages } = checked(
+    "getDashboardMetrics:threads",
+    await supabase
+      .from("message_events")
+      .select("has_thread")
+      .eq("community_id", communityId)
+      .eq("has_thread", true)
+      .gte("ts", since)
+  );
 
   const threadCount = threadMessages?.length || 0;
   const threadPct = totalMessages ? Math.round((threadCount / totalMessages) * 100) : 0;
@@ -44,11 +65,14 @@ export async function getDashboardMetrics(
   // stored in message_events, regardless of the server's local timezone. See #79.
   const todayStart = new Date();
   todayStart.setUTCHours(0, 0, 0, 0);
-  const { data: todayUsers } = await supabase
-    .from("message_events")
-    .select("hashed_user_id")
-    .eq("community_id", communityId)
-    .gte("ts", todayStart.toISOString());
+  const { data: todayUsers } = checked(
+    "getDashboardMetrics:dau",
+    await supabase
+      .from("message_events")
+      .select("hashed_user_id")
+      .eq("community_id", communityId)
+      .gte("ts", todayStart.toISOString())
+  );
 
   const dau = new Set(todayUsers?.map((u) => u.hashed_user_id)).size;
 
@@ -67,12 +91,15 @@ export async function getMessageVolume(
 ) {
   const since = getRangeDate(range);
 
-  const { data } = await supabase
-    .from("message_events")
-    .select("ts")
-    .eq("community_id", communityId)
-    .gte("ts", since)
-    .order("ts", { ascending: true });
+  const { data } = checked(
+    "getMessageVolume",
+    await supabase
+      .from("message_events")
+      .select("ts")
+      .eq("community_id", communityId)
+      .gte("ts", since)
+      .order("ts", { ascending: true })
+  );
 
   if (!data) return [];
 
@@ -103,22 +130,28 @@ export async function getChannelBreakdown(
 ) {
   const since = getRangeDate(range);
 
-  const { data: channels } = await supabase
-    .from("channels")
-    .select("id, name")
-    .eq("community_id", communityId)
-    .eq("opted_in", true);
+  const { data: channels } = checked(
+    "getChannelBreakdown:channels",
+    await supabase
+      .from("channels")
+      .select("id, name")
+      .eq("community_id", communityId)
+      .eq("opted_in", true)
+  );
 
   if (!channels) return [];
 
   const result: { name: string; messages: number }[] = [];
 
   for (const channel of channels) {
-    const { count } = await supabase
-      .from("message_events")
-      .select("*", { count: "exact", head: true })
-      .eq("channel_id", channel.id)
-      .gte("ts", since);
+    const { count } = checked(
+      "getChannelBreakdown:count",
+      await supabase
+        .from("message_events")
+        .select("*", { count: "exact", head: true })
+        .eq("channel_id", channel.id)
+        .gte("ts", since)
+    );
 
     result.push({ name: `#${channel.name}`, messages: count || 0 });
   }
@@ -134,11 +167,14 @@ export async function getTopContributors(
 ) {
   const since = getRangeDate(range);
 
-  const { data } = await supabase
-    .from("message_events")
-    .select("hashed_user_id")
-    .eq("community_id", communityId)
-    .gte("ts", since);
+  const { data } = checked(
+    "getTopContributors",
+    await supabase
+      .from("message_events")
+      .select("hashed_user_id")
+      .eq("community_id", communityId)
+      .gte("ts", since)
+  );
 
   if (!data) return [];
 
@@ -167,20 +203,26 @@ export async function getNewVsReturning(
   const since = getRangeDate(range);
 
   // All-time users (before the range)
-  const { data: allTimeBefore } = await supabase
-    .from("message_events")
-    .select("hashed_user_id")
-    .eq("community_id", communityId)
-    .lt("ts", since);
+  const { data: allTimeBefore } = checked(
+    "getNewVsReturning:before",
+    await supabase
+      .from("message_events")
+      .select("hashed_user_id")
+      .eq("community_id", communityId)
+      .lt("ts", since)
+  );
 
   const beforeIds = new Set(allTimeBefore?.map((u) => u.hashed_user_id));
 
   // Users in range
-  const { data: rangeUsers } = await supabase
-    .from("message_events")
-    .select("hashed_user_id")
-    .eq("community_id", communityId)
-    .gte("ts", since);
+  const { data: rangeUsers } = checked(
+    "getNewVsReturning:range",
+    await supabase
+      .from("message_events")
+      .select("hashed_user_id")
+      .eq("community_id", communityId)
+      .gte("ts", since)
+  );
 
   const rangeIds = new Set(rangeUsers?.map((u) => u.hashed_user_id));
 
@@ -197,12 +239,15 @@ export async function getCohortRetention(
   supabase: SupabaseClient,
   communityId: string
 ) {
-  const { data } = await supabase
-    .from("cohort_snapshots")
-    .select("*")
-    .eq("community_id", communityId)
-    .order("cohort_week", { ascending: true })
-    .order("week_start", { ascending: true });
+  const { data } = checked(
+    "getCohortRetention",
+    await supabase
+      .from("cohort_snapshots")
+      .select("*")
+      .eq("community_id", communityId)
+      .order("cohort_week", { ascending: true })
+      .order("week_start", { ascending: true })
+  );
 
   return data || [];
 }
@@ -215,20 +260,26 @@ export async function getLurkerRatio(
   const since = getRangeDate(range);
 
   // Total members across opted-in channels
-  const { data: channels } = await supabase
-    .from("channels")
-    .select("member_count")
-    .eq("community_id", communityId)
-    .eq("opted_in", true);
+  const { data: channels } = checked(
+    "getLurkerRatio:channels",
+    await supabase
+      .from("channels")
+      .select("member_count")
+      .eq("community_id", communityId)
+      .eq("opted_in", true)
+  );
 
   const totalMembers = channels?.reduce((sum, ch) => sum + (ch.member_count || 0), 0) || 0;
 
   // Active posters in range
-  const { data: activeUsers } = await supabase
-    .from("message_events")
-    .select("hashed_user_id")
-    .eq("community_id", communityId)
-    .gte("ts", since);
+  const { data: activeUsers } = checked(
+    "getLurkerRatio:active",
+    await supabase
+      .from("message_events")
+      .select("hashed_user_id")
+      .eq("community_id", communityId)
+      .gte("ts", since)
+  );
 
   const uniquePosters = new Set(activeUsers?.map((u) => u.hashed_user_id));
 
