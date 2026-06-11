@@ -230,4 +230,17 @@ describe("slack/callback GET", () => {
     expect(res.headers.get("location") ?? "").toContain("Failed%20to%20update%20community");
     expect(admin._spies.rpc).not.toHaveBeenCalled();
   });
+
+  it("redirects to settings with a warning when Slack channel sync fails", async () => {
+    const admin = buildAdmin({ existingCommunity: { id: "existing-community" } });
+    mockDeps({ admin, channelsData: { ok: false, error: "invalid_auth" } });
+    const { GET } = await import("@/app/api/slack/callback/route");
+
+    const res = await GET(buildRequest("?code=abc&state=valid-state", STATE));
+
+    const location = res.headers.get("location") ?? "";
+    expect(location).toContain("/dashboard/existing-community/settings");
+    expect(location).toContain("warning=channel_sync_failed");
+    expect(admin._spies.upsert).not.toHaveBeenCalled();
+  });
 });
