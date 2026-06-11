@@ -11,10 +11,12 @@ import { toggleChannel, regenerateShareToken, disableSharing, revokeIntegration 
 
 interface PageProps {
   params: Promise<{ communityId: string }>;
+  searchParams: Promise<{ warning?: string }>;
 }
 
-export default async function SettingsPage({ params }: PageProps) {
+export default async function SettingsPage({ params, searchParams }: PageProps) {
   const { communityId } = await params;
+  const { warning } = await searchParams;
   const supabase = await createClient();
 
   const { data: community } = await supabase
@@ -49,6 +51,13 @@ export default async function SettingsPage({ params }: PageProps) {
       <p className="text-sm text-muted-foreground mb-8">
         Manage channels, sharing, and integration settings
       </p>
+
+      {warning === "channel_sync_failed" && (
+        <div className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Your Slack workspace is connected, but we couldn&apos;t load your channels just now.
+          Reconnect Slack or refresh this page to try again.
+        </div>
+      )}
 
       {/* Channel Opt-in */}
       <Card className="mb-6">

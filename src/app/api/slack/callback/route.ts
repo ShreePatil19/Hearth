@@ -137,6 +137,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Sync channels from Slack
+  let channelSyncFailed = false;
   try {
     const channelsResponse = await fetch(
       "https://slack.com/api/conversations.list?types=public_channel,private_channel&limit=200",
@@ -155,18 +156,32 @@ export async function GET(request: NextRequest) {
         synced_at: new Date().toISOString(),
       }));
 
-      await admin
+      const { error: channelsError } = await admin
         .from("channels")
         .upsert(channelRows, { onConflict: "community_id,platform_channel_id" });
+
+      if (channelsError) {
+        console.error("Failed to store synced channels:", channelsError);
+        channelSyncFailed = true;
+      }
+    } else {
+      console.error("Slack channel list failed:", channelsData.error || "unknown error");
+      channelSyncFailed = true;
     }
   } catch (e) {
     console.error("Failed to sync channels:", e);
+    channelSyncFailed = true;
   }
 
-  // Clear state cookie and redirect to settings
-  const response = NextResponse.redirect(
-    new URL(`/dashboard/${communityId}/settings`, request.url)
-  );
+  // The token is stored and the workspace is connected, so a channel-sync
+  // failure must not undo that. But surface it: otherwise the user lands on
+  // settings with an empty channel list and assumes there are none. See #103.
+  const settingsUrl = new URL(`/dashboard/${communityId}/settings`, request.url);
+  if (channelSyncFailed) {
+    settingsUrl.searchParams.set("warning", "channel_sync_failed");
+  }
+
+  const response = NextResponse.redirect(settingsUrl);
   response.cookies.delete("slack_oauth_state");
 
   return response;
