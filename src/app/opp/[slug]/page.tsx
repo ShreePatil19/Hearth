@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
@@ -16,7 +17,9 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function getOpportunity(slug: string): Promise<Opportunity | null> {
+// cache() dedupes this within a single request render: generateMetadata and the
+// page body both call it, which would otherwise issue the same query twice.
+const getOpportunity = cache(async (slug: string): Promise<Opportunity | null> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("opportunities")
@@ -24,7 +27,7 @@ async function getOpportunity(slug: string): Promise<Opportunity | null> {
     .eq("slug", slug)
     .single();
   return data as Opportunity | null;
-}
+});
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
