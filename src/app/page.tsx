@@ -152,7 +152,7 @@ export default async function LandingPage() {
                 Built for women founders across Australia
               </p>
               <div className="grid gap-3 sm:grid-cols-3 md:gap-4">
-                {COMMUNITY_PHOTOS.map((photo) => (
+                {COMMUNITY_PHOTOS.map((photo, i) => (
                   <div
                     key={photo.src}
                     className="relative aspect-video overflow-hidden rounded-xl border bg-muted"
@@ -161,6 +161,9 @@ export default async function LandingPage() {
                       src={photo.src}
                       alt={photo.alt}
                       fill
+                      // The first image is the above-the-fold LCP candidate;
+                      // preload it rather than lazy-loading. See #105.
+                      priority={i === 0}
                       sizes="(min-width: 768px) 320px, (min-width: 640px) 33vw, 100vw"
                       className="object-cover transition-transform duration-700 hover:scale-105"
                     />
