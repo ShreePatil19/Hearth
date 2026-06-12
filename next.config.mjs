@@ -13,6 +13,11 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Serve modern, smaller formats from the image optimizer (e.g. the 148 KB
+  // hero JPEG is delivered as a much smaller AVIF/WebP). See #105.
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
   async headers() {
     return [
       {
